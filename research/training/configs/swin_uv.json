@@ -1,0 +1,75 @@
+{
+  "source_manifest": "/study/siiba/data_protocol/dataset_clean_v1.0_20261013/manifest_frozen.csv",
+  "source_manifest_sha256": "737d8654fd99c1e3790ac8ec6aa9866f4002bad47ada24835bd97a43b03e4a2c",
+  "dataset_root": "/study/images",
+  "expected_counts": {
+    "train": 76642,
+    "val": 10948
+  },
+  "seed": 20260817,
+  "orders_dir": "/study/siiba/experiments/joint_uv_uncertainty_clean_20261014_v1.1/orders",
+  "order_sha256": {
+    "1": "a83fb571c082823c7064d90c664e8eadf8622f01f6622f1bfb593f19673eca86",
+    "2": "7091813cf164899662c7246247b66a851b6b742ee65d78e44212f29e425ea7bb",
+    "3": "bab89ab45b9a6473929b665562eb56af654dddf260845e201e47ae0acf69ca53",
+    "4": "89130f3685deb38d4f5a6ba69ca0c909fbf4ab17502f974157c137e26d90a728",
+    "5": "cf78cf279e55954944702f9ce33e7dc46ebc6f58868b6a9ade1b02012e07fd73",
+    "6": "8a6e1db5aab6060173ea9f0b9bd5edf4108365f6b3675f8720845b7f9a6d703a",
+    "7": "57870be2b6973c791c3b0f54523ae826ae9e42282073e70d4af115449c0b6598",
+    "8": "edd8899e88f9bebfbb0e49ea8a2fd22c034c3d99f57fd8a11d8490ddad115efd",
+    "9": "887b326ff1fa6af6b96ae4a0c1571d13ad29aeddae4b1d182b7f543999d5c1f3",
+    "10": "a741f5c8ebe4ccc6ff009b2bb56d89077a1bca4b0e2ad9cb82867df6dfe77e35",
+    "11": "10ce35590abf8c53f497b07db17de857279d02ad0319187095dfa4e2aac9ac70",
+    "12": "e426ac3f92092ff74208e2aa90300f0e815e7f05aa7bdff1c5292a32deab2fa0",
+    "13": "e5c44675def4b68417fbd76da8cf7e1dcbe0fa7443d0cc39ca99c6b712c88be5",
+    "14": "68e2b05656b64f4544fb68f1d9f2c1fda47879e6c63847ab9dfecc77e42a9350",
+    "15": "c698a1a4a0336c51f10cb15dcc11e1e7cd7cc54a31c58beced5f0c3cb692c3c2",
+    "16": "17dac70ead5cbf9b255f469080625acb2926f213cece4de44a97e970a8410544",
+    "17": "835b74476262b9f732e66fa321a701e10560f6d944f3c8765936ae90ede77226",
+    "18": "201330352c0e90101b1fb7cbfc8f0f5a38f70ef38ec4e8a98dd940f34ec9c4e8",
+    "19": "79b0818d448f30ea292279e5206db070f1e4871757baf154f7022eebb91cfb4a",
+    "20": "f04d197e00818df390ff8ca087866b27611226a0add30481a5dab56f8793f7b1"
+  },
+  "reference_protocol": "/study/siiba/experiments/joint_uv_uncertainty_clean_20261014_v1.1/protocol.json",
+  "reference_protocol_sha256": "621e35db9d4049e2dc9dbb2323f86086f53f1705f53f90592b2e6576a7b3f911",
+  "output_dir": "/study/siiba/runs/swin_uv",
+  "selection_metric": "l1",
+  "architecture_id": "swin_t_encoder_unet_decoder_gaussian_proposed_v1",
+  "model": {
+    "embed_dim": 96,
+    "depths": [
+      2,
+      2,
+      6,
+      2
+    ],
+    "num_heads": [
+      3,
+      6,
+      12,
+      24
+    ],
+    "decoder_depths": [
+      6,
+      2,
+      2
+    ],
+    "window_size": 7,
+    "patch_size": 4,
+    "drop_path": 0.0
+  },
+  "training": {
+    "epochs": 20,
+    "global_batch_size": 16,
+    "microbatch_size": 1,
+    "lr": 0.0001,
+    "weight_decay": 0.0001,
+    "grad_clip": 1,
+    "precision": "FP16"
+  },
+  "activation_checkpointing": true,
+  "num_workers": 2,
+  "checkpoint_every_steps": 100,
+  "checkpoint_every_seconds": 300,
+  "max_amp_retries": 8
+}

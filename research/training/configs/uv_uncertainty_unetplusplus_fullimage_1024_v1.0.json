@@ -1,0 +1,49 @@
+{
+  "experiment_id": "uv_uncertainty_unetplusplus_fullimage_1024_v1.0",
+  "output_dir": "/study/siiba/experiments/uv_uncertainty_unetplusplus_fullimage_1024_v1.0",
+  "reference_uncertainty_dir": "/study/siiba/experiments/uv_uncertainty_fullimage_1024_v1.0",
+  "reference_protocol_sha256": "8b9434782a061f4b87282a6ba76c8a4088edd1865aac1846e860d287ecce9188",
+  "dataset_root": "/study/images",
+  "source_manifest": "/study/siiba/data_protocol/dataset_v1.0/manifest_frozen_v1.0.csv",
+  "source_manifest_sha256": "45aa180aec1fdb50c4797ef9053be0afc11790035e446b6f76802dcfe5fe9e6a",
+  "seed": 20260817,
+  "model": {
+    "base_channels": 32,
+    "expected_parameters": 9045924,
+    "ema": false,
+    "deep_supervision": false
+  },
+  "expected_counts": {
+    "train": 80740,
+    "val": 11534
+  },
+  "training": {
+    "epochs": 20,
+    "global_batch_size": 16,
+    "microbatch_size": 1,
+    "world_size": 3,
+    "lr": 0.0001,
+    "weight_decay": 0.0001,
+    "grad_clip": 1.0,
+    "amp": false,
+    "precision": "FP32",
+    "checkpoint_every_attempts": 1000,
+    "checkpoint_every_seconds": 600
+  },
+  "dataloader": {
+    "num_workers": 4,
+    "prefetch_factor": 1,
+    "pin_memory": true
+  },
+  "scheduler": {
+    "factor": 0.5,
+    "patience": 2,
+    "min_lr": 1e-06
+  },
+  "early_stopping": {
+    "patience": 5,
+    "min_delta": 0.0001
+  },
+  "test_access_allowed": false,
+  "after_training": "stop_no_automatic_test_or_other_training"
+}

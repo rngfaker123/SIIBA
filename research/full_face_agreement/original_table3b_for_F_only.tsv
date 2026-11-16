@@ -1,0 +1,32 @@
+Model	Anatomical region	RGB → UV			RGB → PLH			RGB → PLV		
+		R	G	B	R	G	B	R	G	B
+Single-target U-Net	Forehead	0.734	0.858	0.873	0.973	0.978	0.984	0.945	0.969	0.977
+Single-target U-Net	Image-left cheek	0.741	0.841	0.850	0.964	0.976	0.979	0.943	0.972	0.977
+Single-target U-Net	Image-right cheek	0.737	0.835	0.846	0.962	0.972	0.977	0.944	0.969	0.977
+Single-target U-Net	Nose	0.694	0.831	0.845	0.962	0.978	0.983	0.927	0.968	0.975
+Single-target U-Net	Chin	0.652	0.835	0.831	0.982	0.984	0.985	0.968	0.976	0.978
+Single-target U-Net	Full valid face (F)	0.769	0.860	0.857	0.969	0.978	0.982	0.950	0.973	0.981
+Multi-target U-Net	Forehead	0.723	0.860	0.872	0.951	0.967	0.975	0.905	0.948	0.958
+Multi-target U-Net	Image-left cheek	0.735	0.841	0.843	0.934	0.962	0.965	0.897	0.951	0.956
+Multi-target U-Net	Image-right cheek	0.729	0.836	0.841	0.934	0.958	0.961	0.899	0.946	0.957
+Multi-target U-Net	Nose	0.677	0.833	0.842	0.929	0.964	0.974	0.863	0.945	0.952
+Multi-target U-Net	Chin	0.645	0.836	0.830	0.969	0.977	0.977	0.944	0.959	0.962
+Multi-target U-Net	Full valid face (F)	0.761	0.862	0.855	0.942	0.966	0.970	0.909	0.955	0.963
+U-Net++	Forehead	0.650	0.849	0.864	0.971	0.979	0.984	0.943	0.969	0.978
+U-Net++	Image-left cheek	0.664	0.825	0.833	0.963	0.974	0.978	0.941	0.971	0.977
+U-Net++	Image-right cheek	0.650	0.818	0.830	0.961	0.967	0.974	0.942	0.969	0.977
+U-Net++	Nose	0.585	0.802	0.824	0.961	0.978	0.983	0.923	0.966	0.974
+U-Net++	Chin	0.536	0.817	0.810	0.981	0.982	0.984	0.967	0.976	0.978
+U-Net++	Full valid face (F)	0.685	0.842	0.841	0.968	0.975	0.981	0.948	0.973	0.981
+Swin	Forehead	0.464	0.704	0.764	0.988	0.991	0.991			
+Swin	Image-left cheek	0.443	0.655	0.707	0.985	0.990	0.989			
+Swin	Image-right cheek	0.447	0.652	0.712	0.983	0.989	0.988			
+Swin	Nose	0.269	0.613	0.681	0.985	0.991	0.992			
+Swin	Chin	0.280	0.650	0.690	0.992	0.992	0.991			
+Swin	Full valid face (F)	0.476	0.688	0.732	0.989	0.992	0.991			
+LDM	Forehead	0.384	0.604	0.654						
+LDM	Image-left cheek	0.379	0.529	0.561						
+LDM	Image-right cheek	0.369	0.519	0.563						
+LDM	Nose	0.307	0.532	0.572						
+LDM	Chin	0.314	0.572	0.587						
+LDM	Full valid face (F)	0.422	0.570	0.588						

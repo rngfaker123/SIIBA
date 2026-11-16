@@ -1,0 +1,88 @@
+{
+  "experiment_id": "single_uv_uncertainty_clean_20261014_v1.0",
+  "output_dir": "/study/siiba/runs/single_unet_uv",
+  "dataset_root": "/study/images",
+  "source_manifest": "/study/siiba/data_protocol/dataset_clean_v1.0_20261013/manifest_frozen.csv",
+  "source_manifest_sha256": "737d8654fd99c1e3790ac8ec6aa9866f4002bad47ada24835bd97a43b03e4a2c",
+  "seed": 20260817,
+  "model": {
+    "base_channels": 32,
+    "expected_parameters": 7763140,
+    "ema": false
+  },
+  "expected_counts": {
+    "train": 76642,
+    "val": 10948
+  },
+  "training": {
+    "epochs": 20,
+    "global_batch_size": 16,
+    "microbatch_size": 2,
+    "world_size": 2,
+    "lr": 0.0001,
+    "weight_decay": 0.0001,
+    "grad_clip": 1,
+    "amp": true,
+    "initial_loss_scale": 65536,
+    "checkpoint_every_attempts": 1000,
+    "max_consecutive_amp_skips": 3
+  },
+  "dataloader": {
+    "num_workers": 4,
+    "prefetch_factor": 1,
+    "pin_memory": true
+  },
+  "scheduler": {
+    "factor": 0.5,
+    "patience": 2,
+    "min_lr": 1e-06
+  },
+  "early_stopping": {
+    "patience": 5,
+    "min_delta": 0.0001
+  },
+  "protocol": {
+    "task": "single_target_rgb_to_uv_mean_and_aleatoric_sigma",
+    "initialization": "from_scratch_no_checkpoint",
+    "canonical_size": 1024,
+    "preprocess": "same_center_square_then_PIL_Lanczos_uint8_div255",
+    "input_storage": "raw_images_on_the_fly_no_large_npy_cache_rebuild",
+    "reference_mean_backbone_sha256": "3112bc3020b2005c2897716b3836099616f10afb34575e23224c5c5160310c05",
+    "reference_fullimage_loader_sha256": "7dbe88f46b4599926ce57ef384f2aeaf0acf55b2e473895e9b73b9cbdd085af7",
+    "reference_cache_manifest_sample_order_check": "76642_train_and_10948_val_source_order_frozen_in_new_clean_manifests",
+    "random_crop_or_patch": false,
+    "test_access_allowed": false,
+    "loss": "heteroscedastic_Gaussian_NLL_RGB_channel_mean_pixel_mean_image_mean",
+    "nll_constant_omitted": "0.5*log(2*pi)",
+    "sigma_channels": 1,
+    "sigma_shared_across_uv_rgb_channels": true,
+    "variance": "exp(raw_log_variance)+1e-6",
+    "variance_floor": 1e-06,
+    "variance_floor_interpretation": "numerical_regularizer_not_physical_noise_floor",
+    "sigma_initial_raw_log_variance": 0,
+    "nll_precision": "FP32",
+    "backbone_precision": "AMP_FP16",
+    "validation_precision": "FP32_without_autocast",
+    "backend": {
+      "cudnn_deterministic": true,
+      "cudnn_benchmark": false,
+      "matmul_allow_tf32": false,
+      "cudnn_allow_tf32": false
+    },
+    "checkpoint_selection": "lowest_full_val_mean_prediction_L1",
+    "early_stopping_selection_distinction": "true_L1_best_checkpoint_separate_significant_improvement_anchor",
+    "original_reference": "experiments/unet_1024_fullimage_baseline_v1.0/rgb_to_uv",
+    "intentional_differences_from_reference": [
+      "new_33_parameter_sigma_head_and_Gaussian_NLL_instead_of_L1",
+      "2_GPU_exact_global16_micro2_instead_of_single_GPU_physical16",
+      "4_loader_workers_per_rank_instead_of_8_total",
+      "raw_images_processed_on_the_fly_instead_of_existing_npy_cache",
+      "explicit_deterministic_backend_and_disabled_TF32_old_script_did_not_pin_these_flags",
+      "true_minimum_val_L1_checkpoint_separate_from_early_stop_min_delta"
+    ],
+    "after_training": "stop_no_automatic_test_or_other_training",
+    "reference_uncertainty_model_sha256": "669401ef8beeafffba233844d2c2728651e1afffaf203b8847517f6d8fa5dc8f",
+    "precision_provenance": "Original FP16 backbone / FP32 NLL from-zero protocol; not the historical FP32 recovery continuation"
+  },
+  "schema": "single_uv_uncertainty_clean_20261014_v1"
+}

@@ -1,0 +1,89 @@
+{
+  "dataloader": {
+    "num_workers": 4,
+    "pin_memory": true,
+    "prefetch_factor": 1
+  },
+  "dataset_root": "/study/images",
+  "early_stopping": {
+    "min_delta": 0.0001,
+    "patience": 5
+  },
+  "expected_counts": {
+    "train": 76642,
+    "val": 10948
+  },
+  "experiment_id": "pl_controls_original_uv_pipeline_plh_20261031_v1",
+  "model": {
+    "base_channels": 32,
+    "ema": false,
+    "expected_parameters": 7763140
+  },
+  "output_dir": "/study/siiba/runs/single_unet_plh",
+  "protocol": {
+    "after_training": "stop_no_automatic_test_or_other_training",
+    "backbone_precision": "AMP_FP16",
+    "backend": {
+      "cudnn_allow_tf32": false,
+      "cudnn_benchmark": false,
+      "cudnn_deterministic": true,
+      "matmul_allow_tf32": false
+    },
+    "canonical_size": 1024,
+    "checkpoint_selection": "lowest_full_val_mean_prediction_L1",
+    "early_stopping_selection_distinction": "true_L1_best_checkpoint_separate_significant_improvement_anchor",
+    "initialization": "from_scratch_no_checkpoint",
+    "input_storage": "raw_images_on_the_fly_no_large_npy_cache_rebuild",
+    "intentional_differences_from_reference": [
+      "new_33_parameter_sigma_head_and_Gaussian_NLL_instead_of_L1",
+      "2_GPU_exact_global16_micro2_instead_of_single_GPU_physical16",
+      "4_loader_workers_per_rank_instead_of_8_total",
+      "raw_images_processed_on_the_fly_instead_of_existing_npy_cache",
+      "explicit_deterministic_backend_and_disabled_TF32_old_script_did_not_pin_these_flags",
+      "true_minimum_val_L1_checkpoint_separate_from_early_stop_min_delta"
+    ],
+    "loss": "heteroscedastic_Gaussian_NLL_RGB_channel_mean_pixel_mean_image_mean",
+    "nll_constant_omitted": "0.5*log(2*pi)",
+    "nll_precision": "FP32",
+    "original_reference": "experiments/unet_1024_fullimage_baseline_v1.0/rgb_to_uv",
+    "precision_provenance": "Original FP16 backbone / FP32 NLL from-zero protocol; not the historical FP32 recovery continuation",
+    "preprocess": "same_center_square_then_PIL_Lanczos_uint8_div255",
+    "random_crop_or_patch": false,
+    "reference_cache_manifest_sample_order_check": "76642_train_and_10948_val_source_order_frozen_in_new_clean_manifests",
+    "reference_fullimage_loader_sha256": "7dbe88f46b4599926ce57ef384f2aeaf0acf55b2e473895e9b73b9cbdd085af7",
+    "reference_mean_backbone_sha256": "3112bc3020b2005c2897716b3836099616f10afb34575e23224c5c5160310c05",
+    "reference_uncertainty_model_sha256": "669401ef8beeafffba233844d2c2728651e1afffaf203b8847517f6d8fa5dc8f",
+    "sigma_channels": 1,
+    "sigma_initial_raw_log_variance": 0,
+    "sigma_shared_across_uv_rgb_channels": true,
+    "task": "single_target_rgb_to_plh_mean_and_aleatoric_sigma",
+    "test_access_allowed": false,
+    "validation_precision": "FP32_without_autocast",
+    "variance": "exp(raw_log_variance)+1e-6",
+    "variance_floor": 1e-06,
+    "variance_floor_interpretation": "numerical_regularizer_not_physical_noise_floor"
+  },
+  "scheduler": {
+    "factor": 0.5,
+    "min_lr": 1e-06,
+    "patience": 2
+  },
+  "schema": "single_uv_uncertainty_clean_20261014_v1",
+  "seed": 20260817,
+  "source_manifest": "/study/siiba/data_protocol/dataset_clean_v1.0_20261013/manifest_frozen.csv",
+  "source_manifest_sha256": "737d8654fd99c1e3790ac8ec6aa9866f4002bad47ada24835bd97a43b03e4a2c",
+  "target_modality": "plh",
+  "training": {
+    "amp": true,
+    "checkpoint_every_attempts": 1000,
+    "epochs": 20,
+    "global_batch_size": 16,
+    "grad_clip": 1,
+    "initial_loss_scale": 65536,
+    "lr": 0.0001,
+    "max_consecutive_amp_skips": 3,
+    "microbatch_size": 2,
+    "weight_decay": 0.0001,
+    "world_size": 2
+  }
+}

@@ -1,0 +1,80 @@
+{
+  "schema": "joint_uv_uncertainty_clean_20261014_v1",
+  "experiment_id": "joint_uv_uncertainty_clean_20261014_v1.1",
+  "output_dir": "/study/siiba/runs/multi_unet",
+  "dataset_root": "/study/images",
+  "source_manifest": "/study/siiba/data_protocol/dataset_clean_v1.0_20261013/manifest_frozen.csv",
+  "source_manifest_sha256": "737d8654fd99c1e3790ac8ec6aa9866f4002bad47ada24835bd97a43b03e4a2c",
+  "seed": 20260817,
+  "model": {
+    "base_channels": 32,
+    "expected_parameters": 16909738,
+    "ema": false
+  },
+  "expected_counts": {
+    "train": 76642,
+    "val": 10948
+  },
+  "training": {
+    "epochs": 20,
+    "global_batch_size": 16,
+    "microbatch_size": 1,
+    "world_size": 4,
+    "lr": 0.0001,
+    "weight_decay": 0.0001,
+    "grad_clip": 1,
+    "amp": true,
+    "initial_loss_scale": 65536,
+    "checkpoint_every_attempts": 1000,
+    "max_consecutive_amp_skips": 3
+  },
+  "dataloader": {
+    "num_workers": 8,
+    "prefetch_factor": 1,
+    "pin_memory": true
+  },
+  "scheduler": {
+    "factor": 0.5,
+    "patience": 2,
+    "min_lr": 1e-06
+  },
+  "early_stopping": {
+    "patience": 5,
+    "min_delta": 0.0001
+  },
+  "objective": {
+    "uv_nll": 1,
+    "plv_l1": 1,
+    "plh_l1": 1
+  },
+  "selection": "full_val_raw_equal_modality_macro_l1",
+  "preprocess": "same_center_square_then_PIL_Lanczos_uint8_div255",
+  "protocol": {
+    "task": "joint_rgb_to_uv_plv_plh_means_and_uv_aleatoric_sigma",
+    "initialization": "from_scratch_no_external_checkpoint",
+    "canonical_size": 1024,
+    "random_crop_or_patch": false,
+    "test_access_allowed": false,
+    "mean_heads": [
+      "uv",
+      "plv",
+      "plh"
+    ],
+    "sigma_head": "uv_only_one_pixelwise_value_shared_over_uv_RGB_channels",
+    "variance": "exp(raw_log_variance)+1e-6",
+    "loss": "1*UV_Gaussian_NLL+1*PLV_L1+1*PLH_L1_user_confirmed",
+    "nll_precision": "FP32",
+    "backbone_precision": "AMP_FP16",
+    "validation_precision": "FP32_no_autocast",
+    "selection": "full_val_image_equal_raw_three_modality_macro_L1",
+    "backend": {
+      "cudnn_deterministic": true,
+      "cudnn_benchmark": false,
+      "matmul_allow_tf32": false,
+      "cudnn_allow_tf32": false
+    },
+    "checkpoint_rule": "strict_true_best_separate_early_stop_anchor_no_EMA",
+    "after_training": "stop_no_automatic_test_or_other_training",
+    "tail_compatibility": "Only final2 real images: rank0/1 each1, rank2/3 idle; loss divided by2 before scaled backward, then gradient SUM before original optimizer step; no padding or dropping"
+  }
+}

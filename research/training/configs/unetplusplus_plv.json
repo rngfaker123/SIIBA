@@ -1,0 +1,51 @@
+{
+  "after_training": "stop_no_automatic_test_or_other_training",
+  "dataloader": {
+    "num_workers": 4,
+    "pin_memory": true,
+    "prefetch_factor": 1
+  },
+  "dataset_root": "/study/images",
+  "early_stopping": {
+    "min_delta": 0.0001,
+    "patience": 5
+  },
+  "expected_counts": {
+    "train": 76642,
+    "val": 10948
+  },
+  "experiment_id": "unetplusplus_plv_release_immediate_two_rank_20261102_v1",
+  "model": {
+    "base_channels": 32,
+    "deep_supervision": false,
+    "ema": false,
+    "expected_parameters": 9045924
+  },
+  "output_dir": "/study/siiba/runs/unetplusplus_plv",
+  "reference_clean_order_dir": "/study/siiba/experiments/joint_uv_uncertainty_clean_20261014_v1.1",
+  "reference_clean_protocol_sha256": "621e35db9d4049e2dc9dbb2323f86086f53f1705f53f90592b2e6576a7b3f911",
+  "scheduler": {
+    "factor": 0.5,
+    "min_lr": 1e-06,
+    "patience": 2
+  },
+  "schema": "unetplusplus_uv_fp32_clean_20261015_v1",
+  "seed": 20260817,
+  "source_manifest": "/study/siiba/data_protocol/dataset_clean_v1.0_20261013/manifest_frozen.csv",
+  "source_manifest_sha256": "737d8654fd99c1e3790ac8ec6aa9866f4002bad47ada24835bd97a43b03e4a2c",
+  "target_modality": "plv",
+  "test_access_allowed": false,
+  "training": {
+    "amp": false,
+    "checkpoint_every_attempts": 1000,
+    "checkpoint_every_seconds": 600,
+    "epochs": 20,
+    "global_batch_size": 16,
+    "grad_clip": 1,
+    "lr": 0.0001,
+    "microbatch_size": 1,
+    "precision": "FP32",
+    "weight_decay": 0.0001,
+    "world_size": 2
+  }
+}

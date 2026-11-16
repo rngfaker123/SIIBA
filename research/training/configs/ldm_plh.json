@@ -1,0 +1,91 @@
+{
+  "actual_generation_math": {
+    "ddim_timestep_rule": "torch_float64_linspace_999_to0_20_round_long",
+    "initial_noise_hash_input": "UTF8 namespace NUL base_seed NUL generation_index NUL sample_id; first8 SHA256 bytes big_endian masked63bit; CPU Torch randn FP32",
+    "initial_noise_namespace": "ldm_uv_v1"
+  },
+  "actual_model_parameters": {
+    "ae": 1754315,
+    "denoiser": 21051204
+  },
+  "ae": {
+    "decoded_output": "sigmoid",
+    "input_to_decoder_skip": false,
+    "kl_weight": 1e-06,
+    "spatial_downsampling": 4,
+    "training_posterior": "reparameterized_sample",
+    "validation_posterior": "mean"
+  },
+  "ae_reconstruction_review": "mandatory fixed VAL24 V10 diagnostic before latent training; measure compression loss, do not retune or select on test. Performance is reported rather than posthoc gating against expected outcomes. Functional gates are complete finite reconstructions and finite strictly positive train-only latent standard deviations.",
+  "automated_scope": "verified_stage_assignment; native1024_AE_preflight; AEtrain; fixed_VAL24_AE_review; all_train_latentstats; wait_verified_diffusion_assignment; native1024_diffusion_preflight; diffusiontrain; audit_stop",
+  "budget_disclosure": "AE up to20 epochs and latent denoiser up to20 epochs are separate full-data training stages, not equal total compute to one U-Net; BF16 differs from original FP16 and existing U-Net++ FP32. Full val DDIM20 checkpoint selection plus eight-generation final uncertainty cost reported separately.",
+  "dataloader": {
+    "num_workers": 4,
+    "pin_memory": true,
+    "prefetch_factor": 1
+  },
+  "dataset_root": "/study/images",
+  "diffusion": {
+    "beta_end": 0.02,
+    "beta_start": 0.0001,
+    "ddim_steps": 20,
+    "eta": 0,
+    "prediction_type": "v_prediction",
+    "timesteps": 1000
+  },
+  "early_stopping": {
+    "min_delta": 0.0001,
+    "patience": 5
+  },
+  "end_policy": "after_completed_clean_LDM_AE_and_denoiser_preserve_frozen_training_artifacts; final_calibration_and_TEST_are_separate_evaluation_pipeline",
+  "execution": {
+    "allowed_world_sizes": [
+      2,
+      4,
+      6
+    ],
+    "assignment_required": true,
+    "topology_policy": "freeze_assignment_per_stage_no_within_stage_world_migration"
+  },
+  "execution_topology_disclosure": "Each stage freezes one verified2/4/6-rank physicalGPUassignment before first update. Effectiveglobal16 and physical1 unchanged. Tail2 haszero-gradient idle ranks forworld4/6, nofakeforward/padding/drop. Changingstage-world changes seeded stochastic trajectory and reductionorder; no within-stage topology migration.",
+  "expected_counts": {
+    "train": 76642,
+    "val": 10948
+  },
+  "experiment_id": "ldm_plh_release_immediate_two_rank_20261102_v1",
+  "failure_policy": "preserve traceback_sample_stage_and_checkpoints; no nan_to_num_silent_skip_protocol_tuning_or_duplicate_workers; do not terminate unrelated jobs",
+  "initialization": "all_models_from_scratch; no external pretrained weights",
+  "large_disk_cache": false,
+  "loss_disclosure": "AE L1 plus mean latent KL1e-6; denoiser unweighted v-MSE. Engineering implementation not specified by professor, no D2 weights/loss combination, no refiner or residual front stage.",
+  "model": {
+    "ae_base_channels": 32,
+    "diffusion_base_channels": 64,
+    "latent_channels": 4,
+    "time_dimension": 256
+  },
+  "output_dir": "/study/siiba/runs/ldm_plh",
+  "reference_protocol_sha256": "621e35db9d4049e2dc9dbb2323f86086f53f1705f53f90592b2e6576a7b3f911",
+  "reference_uncertainty_dir": "/study/siiba/experiments/joint_uv_uncertainty_clean_20261014_v1.1",
+  "scheduler": {
+    "factor": 0.5,
+    "min_lr": 1e-06,
+    "patience": 2
+  },
+  "schema": "uv_ldm_clean_multigpu_training_protocol_20261016_v1",
+  "seed": 20260817,
+  "source_manifest": "/study/siiba/data_protocol/dataset_clean_v1.0_20261013/manifest_frozen.csv",
+  "source_manifest_sha256": "737d8654fd99c1e3790ac8ec6aa9866f4002bad47ada24835bd97a43b03e4a2c",
+  "target_modality": "plh",
+  "test_access_allowed": false,
+  "training": {
+    "checkpoint_every_attempts": 1000,
+    "checkpoint_every_seconds": 600,
+    "epochs": 20,
+    "global_batch_size": 16,
+    "grad_clip": 1,
+    "lr": 0.0001,
+    "microbatch_size": 1,
+    "precision": "BF16",
+    "weight_decay": 0.0001
+  }
+}

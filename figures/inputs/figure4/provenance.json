@@ -1,0 +1,55 @@
+{
+  "figure": 4,
+  "description": "Accepted source values and eye-redacted images for Figure 4.",
+  "inputs": [
+    {
+      "file": "Figure4_verified_data.csv",
+      "sha256": "7ba1633b1732dd7531183cb27361ced725ad5755dba45aa7550028b91738daeb",
+      "source_file": "Figure4_verified_data.csv",
+      "source_sha256": "8916f2d8732ea64f024ecdcebecbd33c86f6c5f9d4f7beffa6208fea2fd45ef8",
+      "description": "Pixel-component coverage and unclipped interval width before and after calibration. 40 rows."
+    },
+    {
+      "file": "Table4B_plotted.csv",
+      "sha256": "5a03157c56595b185fc06095bc9e0e383d6e1d02b5334aeb1d712b55206adf3f",
+      "source_file": "Table4B_plotted.csv",
+      "source_sha256": "6dff9b5d4bd31bb669dad3bbd60ceb6e0ec8b2126f3a0b472dcefa5716851bf8",
+      "description": "Mean reconstruction error and bootstrap confidence intervals at four retention levels. 80 rows."
+    },
+    {
+      "file": "Table4A_group_distributions.json",
+      "sha256": "22427be99e7e988da253a62fe7fa4b891c43e4b9cae0e06db7c9108dbcc0892d",
+      "source_file": "Table4A_group_distributions.json",
+      "source_sha256": "988413dbfc25f898a1768684aee9aae42a54c542f31b7ab4333fadcddf30fcc0",
+      "description": "Histograms of within-image uncertainty–error Spearman correlation for five models and P/D/O."
+    },
+    {
+      "file": "Table4A.csv",
+      "sha256": "ff81558bef97579c77beabe5a3da17ddaecb43537864d036a657c42d219c2880",
+      "source_file": "Table4A.csv",
+      "source_sha256": "ff81558bef97579c77beabe5a3da17ddaecb43537864d036a657c42d219c2880",
+      "description": "Regional uncertainty summaries. Original source column order D, P, O."
+    },
+    {
+      "file": "measured_uv.png",
+      "sha256": "c58df388823bfe7492bbfebeb551338ba90adc1375003b690eb060ecc1defcdf",
+      "source_file": "measured_uv.png",
+      "source_sha256": "c58df388823bfe7492bbfebeb551338ba90adc1375003b690eb060ecc1defcdf",
+      "description": "Measured UV from one calibration record, with eyes concealed."
+    },
+    {
+      "file": "uncertainty.png",
+      "sha256": "ce2f89aa351ec2d859cb945828c384a858b89bf5ec08629f352dbf6170191c77",
+      "source_file": "uncertainty.png",
+      "source_sha256": "ce2f89aa351ec2d859cb945828c384a858b89bf5ec08629f352dbf6170191c77",
+      "description": "Predicted uncertainty from the same record, with eyes concealed."
+    },
+    {
+      "file": "absolute_error.png",
+      "sha256": "69a4ce719ba62c24c27345477ed14fb65bca16582a8d03166cba076176a8818a",
+      "source_file": "absolute_error.png",
+      "source_sha256": "69a4ce719ba62c24c27345477ed14fb65bca16582a8d03166cba076176a8818a",
+      "description": "Absolute reconstruction error from the same record, with eyes concealed."
+    }
+  ]
+}

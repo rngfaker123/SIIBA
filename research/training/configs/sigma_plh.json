@@ -1,0 +1,99 @@
+{
+  "architecture_id": "ldm_fixed_generator_gaussian_head_proposed_v1",
+  "source_manifest": "/study/siiba/data_protocol/dataset_clean_v1.0_20261013/manifest_frozen.csv",
+  "source_manifest_sha256": "737d8654fd99c1e3790ac8ec6aa9866f4002bad47ada24835bd97a43b03e4a2c",
+  "dataset_root": "/study/images",
+  "output_dir": "/study/siiba/runs/sigma_plh",
+  "seed": 20260817,
+  "expected_counts": {
+    "train": 76642,
+    "val": 10948
+  },
+  "selection_metric": "nll",
+  "orders_dir": "/study/siiba/runs/ldm_plh/orders",
+  "order_sha256": {
+    "1": "a83fb571c082823c7064d90c664e8eadf8622f01f6622f1bfb593f19673eca86",
+    "2": "7091813cf164899662c7246247b66a851b6b742ee65d78e44212f29e425ea7bb",
+    "3": "bab89ab45b9a6473929b665562eb56af654dddf260845e201e47ae0acf69ca53",
+    "4": "89130f3685deb38d4f5a6ba69ca0c909fbf4ab17502f974157c137e26d90a728",
+    "5": "cf78cf279e55954944702f9ce33e7dc46ebc6f58868b6a9ade1b02012e07fd73",
+    "6": "8a6e1db5aab6060173ea9f0b9bd5edf4108365f6b3675f8720845b7f9a6d703a",
+    "7": "57870be2b6973c791c3b0f54523ae826ae9e42282073e70d4af115449c0b6598",
+    "8": "edd8899e88f9bebfbb0e49ea8a2fd22c034c3d99f57fd8a11d8490ddad115efd",
+    "9": "887b326ff1fa6af6b96ae4a0c1571d13ad29aeddae4b1d182b7f543999d5c1f3",
+    "10": "a741f5c8ebe4ccc6ff009b2bb56d89077a1bca4b0e2ad9cb82867df6dfe77e35",
+    "11": "10ce35590abf8c53f497b07db17de857279d02ad0319187095dfa4e2aac9ac70",
+    "12": "e426ac3f92092ff74208e2aa90300f0e815e7f05aa7bdff1c5292a32deab2fa0",
+    "13": "e5c44675def4b68417fbd76da8cf7e1dcbe0fa7443d0cc39ca99c6b712c88be5",
+    "14": "68e2b05656b64f4544fb68f1d9f2c1fda47879e6c63847ab9dfecc77e42a9350",
+    "15": "c698a1a4a0336c51f10cb15dcc11e1e7cd7cc54a31c58beced5f0c3cb692c3c2",
+    "16": "17dac70ead5cbf9b255f469080625acb2926f213cece4de44a97e970a8410544",
+    "17": "835b74476262b9f732e66fa321a701e10560f6d944f3c8765936ae90ede77226",
+    "18": "201330352c0e90101b1fb7cbfc8f0f5a38f70ef38ec4e8a98dd940f34ec9c4e8",
+    "19": "79b0818d448f30ea292279e5206db070f1e4871757baf154f7022eebb91cfb4a",
+    "20": "f04d197e00818df390ff8ca087866b27611226a0add30481a5dab56f8793f7b1"
+  },
+  "training": {
+    "epochs": 20,
+    "global_batch_size": 16,
+    "microbatch_size": 1,
+    "lr": 0.0001,
+    "weight_decay": 0.0001,
+    "grad_clip": 1,
+    "precision": "FP32"
+  },
+  "ae": {
+    "path": "/study/siiba/runs/ldm_plh/ae/checkpoint_best.pt",
+    "sha256": "b230b77338a782ab3fe3b56b16aef39b94a6779c624db9ec9dca253a8d159f53",
+    "state_key": "model_state_dict"
+  },
+  "denoiser": {
+    "path": "/study/siiba/runs/ldm_plh/diffusion/checkpoint_best.pt",
+    "sha256": "3d199180ee47c909f321e4a024afcad06a9802b32536b60742d052cc40bc3064",
+    "state_key": "model_state_dict"
+  },
+  "latent_statistics": {
+    "path": "/study/siiba/runs/ldm_plh/latent_stats/statistics.json",
+    "sha256": "50d3ecfbaa7894431440f4db3ab00c50067f75708b85aa166fd23399db35fb4c"
+  },
+  "statistics_mean_key": "mean",
+  "statistics_std_key": "std",
+  "checkpoint_every_steps": 20,
+  "checkpoint_every_seconds": 300,
+  "num_workers": 2,
+  "gate_assets": {
+    "ae_summary": {
+      "path": "/study/siiba/runs/ldm_plh/ae/training_summary.json",
+      "sha256": "d7476f3be427b1c215a3c941f2a0ee3d842d76a75bf3a567fcac91988ae2fa83"
+    },
+    "ae_last": {
+      "path": "/study/siiba/runs/ldm_plh/ae/checkpoint_last.pt",
+      "sha256": "47bfe2a07432ea2c7c477f0d6d3f77442146425e7070a4f652d6e88be51e0546"
+    },
+    "ae_protocol": {
+      "path": "/study/siiba/runs/ldm_plh/protocol.json",
+      "sha256": "1d2475e668432020eecd12fe0a304028824c5a56bcce0aaeaf163e8fa312816c"
+    },
+    "b_summary": {
+      "path": "/study/siiba/runs/ldm_plh/diffusion/training_summary.json",
+      "sha256": "73107590d2a405b0832f108c2e475eec1eef41f3eaabe8e93e79e4fff0bc50bc"
+    },
+    "b_last": {
+      "path": "/study/siiba/runs/ldm_plh/diffusion/checkpoint_last.pt",
+      "sha256": "cf105db68ffa4cbd2177eaafb6f5dbde633fb25809065befa3c2aad0c7546e36"
+    },
+    "b_protocol": {
+      "path": "/study/siiba/runs/ldm_plh/protocol.json",
+      "sha256": "1d2475e668432020eecd12fe0a304028824c5a56bcce0aaeaf163e8fa312816c"
+    },
+    "train_manifest": {
+      "path": "/study/siiba/runs/ldm_plh/train_manifest.json",
+      "sha256": "f89ba687a8d69153158493d351c61b60b001d3a381f2d2054b5df6b45928bb0d"
+    },
+    "val_manifest": {
+      "path": "/study/siiba/runs/ldm_plh/val_manifest.json",
+      "sha256": "739b83c707174e3297dad327357739dd934167f7dba24ee358b2928cf616351b"
+    }
+  },
+  "target_modality": "plh"
+}

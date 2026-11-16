@@ -1,0 +1,104 @@
+{
+  "figure": "Figure3",
+  "sources": {
+    "reconstruction.csv": {
+      "basename": "modal.json",
+      "sha256": "9323ae38b4608c19663c0963bea3b7162c779396efdb7cb4ce1958693a5541be",
+      "extraction": "reconstruction rows with metric=l1 and status=accepted; model,target,region,mean,sd,status",
+      "additional_source": {
+        "basename": "summary.json",
+        "sha256": "5798462ed4d77bb49976eb35850b7cb2df6662b811cb1f831588e2fd057afc92",
+        "acceptance_sha256": "44048b7c96f66c1d905da0e15bb08d2ab50dbca964b119451abda65f33e7ad20",
+        "selection": "accepted LDM-PLH 3F cells with metric=l1, grouped by region; mean and sample_SD_ddof1 from the native summary"
+      }
+    },
+    "Table3B.csv": {
+      "basename": "Table3B_fullF.csv",
+      "sha256": "25cec676cc54e589afb752ea993a651f0ee033047ac4b49c7a2815e62084a70c",
+      "extraction": "Accepted whole-F partition, 13 model-target combinations, six regions and three channels."
+    },
+    "Table3C.csv": {
+      "basename": "Table3C.csv",
+      "sha256": "cf3642d4c3f65a891024b50cf825f5332822d9f0cabf20de618bdbe7b467e636",
+      "extraction": "Exact accepted table; Table3A is used only for numerical validation."
+    },
+    "Table3D.csv": {
+      "basename": "Table3D.csv",
+      "sha256": "33780d644b49f2e81daa24852e3eca562016c22bbed225977e3d1e4324c7ad8a",
+      "extraction": "Exact accepted table; Table3A is used only for numerical validation."
+    },
+    "paired_full_face.csv": {
+      "basename": "S3F_paired_UV_minus_PL.csv",
+      "sha256": "859235bdd4821b1aa45e7ad54314dae5e6eb759ff4300ed3f54012b6460f990d",
+      "extraction": "region=F and metric=l1; model,PL_target,UV_reference_mean,mean_UV_minus_PL,n_paired",
+      "additional_source": {
+        "basename": "UV_minus_PL.json",
+        "sha256": "8ed0b168ba2630df5d27816c972492d304b442593c54bec9eb10a022f06773bd",
+        "acceptance_sha256": "44048b7c96f66c1d905da0e15bb08d2ab50dbca964b119451abda65f33e7ad20",
+        "selection": "LDM, PLH, region=F, metric=l1, 21,422 group-paired observations"
+      }
+    },
+    "spatial_shift.csv": {
+      "basename": "All_1500_plot_points_mean_STD_CI_N.csv",
+      "sha256": "09deca87ec13dd95c816b07afb7358497e13d43a88028d9558eb49cdda86b0ac",
+      "extraction": "metric=L1 and blur_sigma_px=0; model,region,shift_px,relative_mean_change_percent"
+    },
+    "Table3A_L1_reference.csv": {
+      "inputs": [
+        "Table3A.tsv",
+        "Table3F.csv"
+      ],
+      "sha256": [
+        "ab7f8eff55f58f567fa2abb649df8ba32f408fd1a7ace15159f466e25348fb0e",
+        "d6a43853c2bbad0dfc2a308aabf48d9921d7a31c5744a098150eccaf4c962993"
+      ],
+      "extraction": "Regional L1 mean and SD. The LDM-PLH entries use the three-decimal precision of the accepted November 15 export."
+    }
+  },
+  "packaged_files": {
+    "paired_full_face.csv": {
+      "bytes": 558,
+      "sha256": "902ae049387f1dbf3ed3680e0378b29fdf586b674a0cb38391ed1f12ecfc72ff"
+    },
+    "reconstruction.csv": {
+      "bytes": 3552,
+      "sha256": "498b463cf71e8eb7238510864ec5cd66e8264ef293e8a3412f1650eae885e370"
+    },
+    "spatial_shift.csv": {
+      "sha256": "9a3083aacc880367c1569613ab97cfcbf9caf40e9eac45f655e4a0d4a48d2dcd",
+      "bytes": 2291
+    },
+    "Table3A_L1_reference.csv": {
+      "sha256": "3316b18d569472ddc7c9a5309665002a921c9e4088c11192a4ae27a91cb11808",
+      "bytes": 1660
+    },
+    "Table3B.csv": {
+      "sha256": "25cec676cc54e589afb752ea993a651f0ee033047ac4b49c7a2815e62084a70c",
+      "bytes": 2329
+    },
+    "Table3C.csv": {
+      "sha256": "cf3642d4c3f65a891024b50cf825f5332822d9f0cabf20de618bdbe7b467e636",
+      "bytes": 2070
+    },
+    "Table3D.csv": {
+      "sha256": "33780d644b49f2e81daa24852e3eca562016c22bbed225977e3d1e4324c7ad8a",
+      "bytes": 2031
+    },
+    "nasal_roi.npz": {
+      "sha256": "3f8bedd27e9797694cbbe01a50cac3e03805252c043d60717590ce577cbc2b4a",
+      "bytes": 3921039
+    },
+    "ROI_provenance.json": {
+      "sha256": "01bb83ece0f4d0252ec537dc3fb0bf0e27bf4903c87d634540aca7b34976f9cd",
+      "bytes": 2629
+    }
+  },
+  "numeric_counts": {
+    "3A_L1": 52,
+    "full_face_paired_differences": 8,
+    "3B_ICC": 234,
+    "3C": 60,
+    "3D": 60,
+    "spatial_shift": 75
+  }
+}

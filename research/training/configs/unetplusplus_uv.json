@@ -1,0 +1,50 @@
+{
+  "experiment_id": "unetplusplus_uv_uncertainty_clean_20261015_v1.0",
+  "output_dir": "/study/siiba/runs/unetplusplus_uv",
+  "dataset_root": "/study/images",
+  "source_manifest": "/study/siiba/data_protocol/dataset_clean_v1.0_20261013/manifest_frozen.csv",
+  "source_manifest_sha256": "737d8654fd99c1e3790ac8ec6aa9866f4002bad47ada24835bd97a43b03e4a2c",
+  "seed": 20260817,
+  "model": {
+    "base_channels": 32,
+    "expected_parameters": 9045924,
+    "ema": false,
+    "deep_supervision": false
+  },
+  "expected_counts": {
+    "train": 76642,
+    "val": 10948
+  },
+  "training": {
+    "epochs": 20,
+    "global_batch_size": 16,
+    "microbatch_size": 1,
+    "world_size": 4,
+    "lr": 0.0001,
+    "weight_decay": 0.0001,
+    "grad_clip": 1,
+    "amp": false,
+    "precision": "FP32",
+    "checkpoint_every_attempts": 1000,
+    "checkpoint_every_seconds": 600
+  },
+  "dataloader": {
+    "num_workers": 4,
+    "prefetch_factor": 1,
+    "pin_memory": true
+  },
+  "scheduler": {
+    "factor": 0.5,
+    "patience": 2,
+    "min_lr": 1e-06
+  },
+  "early_stopping": {
+    "patience": 5,
+    "min_delta": 0.0001
+  },
+  "test_access_allowed": false,
+  "after_training": "stop_no_automatic_test_or_other_training",
+  "reference_clean_order_dir": "/study/siiba/experiments/joint_uv_uncertainty_clean_20261014_v1.1",
+  "reference_clean_protocol_sha256": "621e35db9d4049e2dc9dbb2323f86086f53f1705f53f90592b2e6576a7b3f911",
+  "schema": "unetplusplus_uv_fp32_clean_20261015_v1"
+}

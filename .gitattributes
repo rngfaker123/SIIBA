@@ -1,0 +1,2 @@
+# Keep byte-pinned sources and figure inputs identical on Windows and Linux.
+* -text

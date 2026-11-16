@@ -1,0 +1,21 @@
+{
+  "figure": "Figure 1",
+  "input": "layout_template.svg",
+  "sha256": "864ff662181b2cb9882c539b0e1b275493db022a4f73c9b0f636d422d8eac1bf",
+  "source_asset": "Figure1_nose_aligned_20261112/Figure1.svg",
+  "description": "Approved layout with external PNG assets. The build restores and verifies the original embedded-source SHA-256 before applying the figure styling.",
+  "source_script_sha256": "8321cd7fa8646360c761ad677d82fb1c013e3b25ea467fcd41e3c62e84099e63",
+  "image_assets": [
+    "assets/acquisition_device.png",
+    "assets/paired_capture.png",
+    "assets/rgb.png",
+    "assets/uv.png",
+    "assets/plh.png",
+    "assets/plv.png",
+    "assets/signal_domains.png",
+    "assets/thumbnail_rgb.png",
+    "assets/thumbnail_uv.png",
+    "assets/thumbnail_plh.png",
+    "assets/thumbnail_plv.png"
+  ]
+}

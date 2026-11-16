@@ -1,0 +1,5 @@
+# Full-cohort spatial agreement
+
+[`full_spatial_owner_v1.py`](full_spatial_owner_v1.py) contains the per-group work, validation and model/cohort aggregation stages. It reads frozen truth and prediction masks with their geometry receipts. It delegates overlap, object matching and the ROI-constrained randomization to [object metrics](../uv_objects/metrics.py). Inputs are registered binary signal maps, the valid-face mask and the named forehead, image-left cheek, image-right cheek, nose and chin ROI maps. Unassigned face pixels form a separate remainder domain in the point randomization.
+
+`spatial_metrics(truth_mask, prediction_mask, f_mask, roi_masks, group_index, signal)` can run on supplied arrays without a model, detector, or image archive. It reports Dice, centroid precision/recall/F1, centre error, ten random repeats and fixed pixel tolerances of 2, 5 and 10. The original owner also requires the archived per-group receipts and original cohort manifest. The [synthetic smoke](../uv_calibration/smoke_test.py) calls this function.
