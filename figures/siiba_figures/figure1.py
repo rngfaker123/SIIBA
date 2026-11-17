@@ -8,7 +8,7 @@ from textwrap import dedent
 from xml.etree import ElementTree as ET
 import hashlib
 
-from .style import REGION_COLORS, REGION_ORDER
+from .style import REGION_COLORS, REGION_NAMES, REGION_ORDER
 from .svg_export import export_svg
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -101,7 +101,6 @@ def build(output_dir):
     defs = ET.SubElement(domains, NS+'defs')
     defs.append(bitmap)
     domains.remove(original)
-    cols = [REGION_COLORS[key] for key in REGION_ORDER]
     for i, left in enumerate([342, 640, 938, 44]):
         viewport = ET.SubElement(domains, NS+'svg', {
             'x': str(22+112*i), 'y': '550', 'width': '112', 'height': '140',
@@ -110,8 +109,8 @@ def build(output_dir):
     for el in list(domains):
         if el.tag == NS+'text' and el.get('y') in ['704', '720']:
             domains.remove(el)
-    for i, (name, color) in enumerate(zip(['Porphyrin', 'UV spots', 'Other skin', 'Full face'], cols)):
-        text(domains, 78+112*i, 710, name, fill=color, weight='600')
+    for i, region in enumerate(REGION_ORDER):
+        text(domains, 78+112*i, 710, REGION_NAMES[region], fill=REGION_COLORS[region], weight='600')
     eq = next(el for el in domains.findall(NS+'text') if el.text == 'F = P ∪ D ∪ O')
     eq.set('y', '739')
     eq.set('font-size', '15')

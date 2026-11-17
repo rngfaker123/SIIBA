@@ -6,7 +6,7 @@ REGION_COLORS = {
     "P": "#C34359", "D": "#416FA3", "O": "#C89B3C", "F": "#747A83",
 }
 REGION_NAMES = {
-    "P": "Porphyrin", "D": "UV spots", "O": "Other skin", "F": "Full face",
+    "P": "Porphyrin", "D": "UV spots", "O": "Other", "F": "Full face",
 }
 REGION_MARKERS = {"P": "o", "D": "s", "O": "^", "F": "o"}
 REGION_LINESTYLES = {"P": "-", "D": "--", "O": "-.", "F": ":"}

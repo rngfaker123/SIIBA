@@ -55,14 +55,18 @@ def _build(output_dir):
     B = pd.read_csv(INPUT/'Table3B.csv',na_values=['TBD']).set_index(['Model','Anatomical region'])
     assert list(B.count().values)==[30]*3+[30]*3+[18]*3
 
-    plt.rcParams.update({'font.family':style.FONT,'font.size':8.0,'text.color':INK,
+    plt.rcParams.update({'font.family':style.FONT,'font.size':10,'text.color':INK,
         'axes.labelcolor':INK,'axes.edgecolor':'#737A80','xtick.color':INK,'ytick.color':INK,
         'axes.linewidth':.6,'xtick.major.width':.6,'ytick.major.width':.6,
         'xtick.major.size':2.5,'ytick.major.size':2.5,'axes.spines.top':False,
         'axes.spines.right':False,'pdf.fonttype':42,'svg.fonttype':'none',
         'savefig.facecolor':'white'})
     row_step = .85
-    W, H = 8.5, 12.6 + 2 * row_step
+    crop_header_space = .19
+    icc_height = 1.30
+    icc_row_step = icc_height + .12
+    icc_extra_height = 3 * (icc_row_step - .82)
+    W, H = 8.5, 12.6 + 2 * row_step + crop_header_space + icc_extra_height + 1.01
     fig = plt.figure(figsize=(W,H),facecolor='white')
     section_offset = 0.
 
@@ -70,32 +74,32 @@ def _build(output_dir):
         return fig.text(x/W,1-(section_offset+y)/H,s,va='center',**kw)
 
     def heading(y,letter,s):
-        text(.10,y,letter,fontsize=14,weight='bold')
-        text(.37,y,s,fontsize=11,weight='bold')
+        text(.10,y,letter,fontsize=16,weight='bold')
+        text(.41,y,s,fontsize=13.5,weight='bold')
 
     def axis(x,top,w,h,grid='y'):
         ax = fig.add_axes([x/W,1-(section_offset+top+h)/H,w/W,h/H])
-        ax.tick_params(pad=2,labelsize=8)
+        ax.tick_params(pad=2,labelsize=10)
         ax.set_axisbelow(True)
         if grid:
             ax.grid(axis=grid,color=GRID,lw=.55)
         return ax
 
     def title(ax,s):
-        ax.set_title(s,loc='left',fontsize=8.5,weight='bold',pad=4)
+        ax.set_title(s,loc='left',fontsize=10.5,weight='bold',pad=4)
 
-    def legend(y,labels,colors,markers,x=.45,size=8.2,ncol=None,edge_white=False):
+    def legend(y,labels,colors,markers,x=.45,size=10,ncol=None,edge_white=False,marker_size=5.6):
         handles=[]
         for i,(label,color,marker) in enumerate(zip(labels,colors,markers)):
             hollow = edge_white and i==3
-            handles.append(Line2D([],[],ls='none',marker=marker,ms=4.5,color=color,
+            handles.append(Line2D([],[],ls='none',marker=marker,ms=marker_size,color=color,
                 markerfacecolor='white' if hollow else color,markeredgewidth=.9,label=label))
         fig.legend(handles=handles,loc='center left',bbox_to_anchor=(x/W,1-(section_offset+y)/H),
             ncol=ncol or len(labels),frameon=False,fontsize=size,handletextpad=.4,
-            columnspacing=1.35,handlelength=1.05,borderaxespad=0)
+            columnspacing=.95,handlelength=1.05,borderaxespad=0)
 
     def missing(ax,j):
-        ax.text(j,.05,'—',transform=ax.get_xaxis_transform(),ha='center',fontsize=8)
+        ax.text(j,.05,'—',transform=ax.get_xaxis_transform(),ha='center',fontsize=10)
 
     # Fixed, audited ROI.
     heading(.16,'a','Reconstruction of UV, PLH and PLV in the same nasal region')
@@ -123,20 +127,21 @@ def _build(output_dir):
     crop_labels = ['Ground truth', 'Single-target U-Net', 'Multi-target U-Net', 'U-Net++',
                    'Swin Transformer', 'Latent diffusion model']
     for j,label in enumerate(crop_labels):
-        text(1.19+j*1.31,.45,label,ha='center',fontsize=8.5,weight='bold' if j==0 else 'normal')
+        label = label.replace('target U-Net','target\nU-Net').replace('diffusion model','diffusion\nmodel')
+        text(1.19+j*1.31,.55,label,ha='center',fontsize=10.5,weight='bold' if j==0 else 'normal')
     for i,target in enumerate(TARGETS):
-        top = .58 + i * row_step
-        text(.30,top+.395,target,ha='center',fontsize=9,weight='bold')
+        top = .58 + crop_header_space + i * row_step
+        text(.30,top+.395,target,ha='center',fontsize=11,weight='bold')
         for j,name in enumerate(columns):
             ax = axis(.64+j*1.31,top,1.10,.79,grid=None)
             ax.imshow(images[target, name].transpose(1,2,0),interpolation='nearest')
             ax.set_axis_off()
 
-    section_offset = 2 * row_step
-    heading(1.60,'b','Regional reconstruction error for UV, PLH and PLV')
-    legend(1.83,REGION_NAMES,COLORS,MARKERS,x=3.07,edge_white=True)
+    section_offset = 2 * row_step + crop_header_space
+    heading(1.63,'b','Regional reconstruction error')
+    legend(1.63,REGION_NAMES,COLORS,MARKERS,x=3.91,edge_white=True)
     for ti,target in enumerate(TARGETS):
-        ax=axis(.60+ti*2.63,2.08,2.25,.68)
+        ax=axis(.61+ti*2.72,2.00,2.19,.76)
         title(ax,'RGB → '+target)
         maximum,unit=(.16,.04) if ti==0 else (.032,.008)
         for j,key in enumerate(KEYS):
@@ -147,7 +152,7 @@ def _build(output_dir):
                 q=a.loc[(key,target,region)]
                 assert 0<=q['mean']-q['sd'] and q['mean']+q['sd']<maximum
                 ax.errorbar(j+(ri-1.5)*.19,q['mean'],yerr=q['sd'],fmt=MARKERS[ri],
-                    ms=3.8,color=COLORS[ri],mfc='white' if ri==3 else COLORS[ri],
+                    ms=4.5,color=COLORS[ri],mfc='white' if ri==3 else COLORS[ri],
                     mew=.8,lw=.7,capsize=1.4,capthick=.65,zorder=3)
         ax.set(xlim=(-.5,4.5),ylim=(0,maximum),yticks=np.arange(5)*unit,
             xticks=range(5),xticklabels=TICKS)
@@ -155,10 +160,11 @@ def _build(output_dir):
         if ti==0:
             ax.set_ylabel('L1 error',labelpad=3)
 
-    heading(3.17,'c','Full-face reconstruction error for PLH and PLV compared with UV')
-    legend(3.40,['UV','UV − PL','PLH','PLV'],[TARGET_COLORS[0],'#CED4D8',*TARGET_COLORS[1:]],['s']*4,x=4.65)
+    section_offset += .12
+    heading(3.17,'c','Paired full-face reconstruction error')
+    legend(3.17,['UV','UV − PL','PLH','PLV'],[TARGET_COLORS[0],'#CED4D8',*TARGET_COLORS[1:]],['s']*4,x=5.02)
     for ti,target in enumerate(TARGETS[1:]):
-        ax=axis(.60+ti*4.02,3.64,3.63,.56)
+        ax=axis(.60+ti*4.02,3.60,3.63,.62)
         title(ax,'RGB → '+target+' vs RGB → UV')
         for j,model in enumerate(MODELS):
             if (model,target) not in pairs.index:
@@ -178,17 +184,22 @@ def _build(output_dir):
         if ti==0:
             ax.set_ylabel('L1 error',labelpad=3)
 
+    section_offset += .21
     heading(4.59,'d','Agreement in regional mean colour intensity')
-    legend(4.83,MODELS,['#50585E']*5,MODEL_MARKERS,x=1.65)
+    legend(4.96,crop_labels[1:],['#50585E']*5,MODEL_MARKERS,x=.36,marker_size=8.5)
     areas=['Forehead','Image-left cheek','Image-right cheek','Nose','Chin','Full valid face (F)']
     area_labels=['Forehead','Image-left cheek','Image-right cheek','Nose','Chin','Full face']
     arch=['Single-target U-Net','Multi-target U-Net','U-Net++','Swin','LDM']
     counts=[]
     for ri,(ch,name,color) in enumerate(zip('RGB',['Red','Green','Blue'],['#A14A59','#52775F','#416FA3'])):
-        y=5.19+ri*.82
-        text(.18,y+.36,name,rotation=90,weight='bold',fontsize=8.2,ha='center',color=color)
+        y=5.34+ri*icc_row_step
+        text(.11,y+icc_height/2,name,rotation=90,weight='bold',fontsize=10.5,ha='center',color=color)
         for ti,target in enumerate(TARGETS):
-            ax=axis(1.40+ti*2.35,y,2.08,.73,grid='x')
+            ax=axis(1.48+ti*2.34,y,2.02,icc_height,grid='x')
+            limits = [(.285,1.014), (.909,1.005), (.85,1.007)][ti]
+            ax.set(xlim=limits,ylim=(-.60,5.60))
+            for band in (0,2,4):
+                ax.axhspan(band-.50,band+.50,color='#F5F6F7',lw=0,zorder=0)
             if ri==0:
                 title(ax,'RGB → '+target)
             series=B[target+'_'+ch].unstack(level='Model').loc[areas,arch]
@@ -197,37 +208,50 @@ def _build(output_dir):
                 vals=row.to_numpy(dtype=float)
                 yy=5-i
                 ax.plot([np.nanmin(vals),np.nanmax(vals)],[yy,yy],lw=.7,color=color,alpha=.5)
-                span=.724 if ti==0 else .152
-                present=np.where(np.isfinite(vals))[0]
-                ordered=present[np.argsort(vals[present],kind='stable')]
-                clusters=np.split(ordered,np.where(np.diff(vals[ordered])>span*.045)[0]+1)
-                for cluster in clusters:
-                    group=sorted(cluster)
-                    offsets=(np.arange(len(group))-(len(group)-1)/2)*.18
-                    for j,dy in zip(group,offsets):
-                        ax.scatter(vals[j],yy+dy,marker=MODEL_MARKERS[j],s=19,color=color,
-                            edgecolor='white',linewidths=.35,zorder=3)
-                        count+=1
+                # Place nearby symbols vertically in print points; x always remains the measured ICC.
+                present = np.flatnonzero(np.isfinite(vals))
+                order = present[np.argsort(vals[present], kind='stable')]
+                x_points = vals * (2.02 * 72 / (limits[1] - limits[0]))
+                offsets = {}
+                clearance = 7.3
+                for j in order:
+                    candidates = [0.]
+                    neighbours = []
+                    for k, prior_y in offsets.items():
+                        dx = abs(x_points[j] - x_points[k])
+                        if dx < clearance:
+                            gap = np.sqrt(clearance**2 - dx**2)
+                            candidates.extend((prior_y-gap, prior_y+gap))
+                            neighbours.append((dx, prior_y))
+                    offsets[j] = min((yoff for yoff in candidates if all(
+                        np.hypot(dx, yoff-prior_y) >= clearance-1e-8
+                        for dx, prior_y in neighbours)), key=abs)
+                centre = (min(offsets.values()) + max(offsets.values())) / 2
+                for j, offset in offsets.items():
+                    dy = (offset-centre) * 6.20 / (icc_height*72)
+                    ax.scatter(vals[j], yy+dy, marker=MODEL_MARKERS[j], s=43,
+                               color=color, edgecolor='white', linewidths=.45, zorder=3)
+                    count += 1
             counts.append(count)
-            ax.set(ylim=(-.55,5.55),yticks=range(6),yticklabels=area_labels[::-1] if ti==0 else [],
-                xlim=(.285,1.009) if ti==0 else (.85,1.002),
-                xticks=[.3,.5,.7,.9,1.] if ti==0 else [.85,.9,.95,1.])
+            ax.set(yticks=range(6),yticklabels=area_labels[::-1] if ti==0 else [],
+                xticks=[[.3,.5,.7,.9,1.], [.92,.94,.96,.98,1.], [.85,.9,.95,1.]][ti])
             ax.tick_params(axis='x',labelbottom=(ri==2),length=2 if ri==2 else 0)
-            ax.tick_params(axis='y',length=0,pad=3,labelsize=8)
+            ax.tick_params(axis='y',length=0,pad=3,labelsize=10)
             ax.spines['left'].set_visible(False)
             if ri==2:
                 ax.set_xlabel('ICC(A,1)',labelpad=3)
     assert counts==[30,30,18]*3
 
+    section_offset += icc_extra_height + .28
     heading(8.02,'e','UV counts, area and local detection')
-    legend(8.02,REGION_NAMES[:2],COLORS[:2],MARKERS[:2],x=5.65)
+    legend(8.02,REGION_NAMES[:2],COLORS[:2],MARKERS[:2],x=5.62)
     ctitles=['Count MAE','Count ICC','Area MAE\n(pp)','Area ICC','Local\nAUROC','Local\nPR-AUC']
     limits=[(-20,630),(-.03,1.),(-.08,2.55),(-.03,1.),(.49,.82),(.48,.92)]
     ticks=[[0,300,600],[0,.5,1],[0,1,2],[0,.5,1],[.5,.65,.8],[.5,.7,.9]]
     plotted=0
     for i,(name,lim,xt) in enumerate(zip(ctitles,limits,ticks)):
-        ax=axis(1.20+i*1.20,8.51,1.01,.65,grid='x')
-        ax.set_title(name,fontsize=8.2,weight='bold',pad=5)
+        ax=axis(1.28+i*1.19,8.55,.95,.85,grid='x')
+        ax.set_title(name,fontsize=10,weight='bold',pad=5)
         for si,signal in enumerate('PD'):
             row=C.loc[C.iloc[:,0]==signal].iloc[i]
             for j,model in enumerate(CN):
@@ -236,15 +260,17 @@ def _build(output_dir):
                 if '[' in cell:
                     lo,hi=map(float,re.search(r'\[([^\]]+)\]',cell).group(1).split(','))
                     ax.plot([lo,hi],[y,y],lw=.85,color=COLORS[si])
-                ax.plot(value,y,marker=MARKERS[si],color=COLORS[si],ms=3.8,lw=0)
+                ax.plot(value,y,marker=MARKERS[si],color=COLORS[si],ms=4.4,lw=0)
                 plotted+=1
         ax.set(ylim=(-.55,4.55),yticks=range(5),yticklabels=MODELS[::-1] if i==0 else [],xlim=lim,xticks=xt)
+        ax.xaxis.set_major_formatter(FormatStrFormatter('%g'))
         ax.tick_params(axis='y',length=0)
         ax.spines['left'].set_visible(False)
     assert plotted==60
 
+    section_offset += .30
     heading(9.47,'f','Spatial matching of UV objects')
-    legend(9.47,REGION_NAMES[:2],COLORS[:2],MARKERS[:2],x=5.65)
+    legend(9.47,REGION_NAMES[:2],COLORS[:2],MARKERS[:2],x=5.62)
     dtitles=['Mask Dice','Precision','Recall','F1','Centre error (px)','Matched groups (k)']
     for i,name in enumerate(dtitles):
         ax=axis(.60+(i%3)*2.63,9.84 if i<3 else 10.58,2.25,.37)
@@ -255,7 +281,7 @@ def _build(output_dir):
             vals=np.array([float(str(sub.iloc[i][m]).split()[0]) for m in CN])
             if i==5:
                 vals/=1000
-            ax.plot(range(5),vals,marker=MARKERS[si],ms=3.8,lw=1.0,color=COLORS[si])
+            ax.plot(range(5),vals,marker=MARKERS[si],ms=4.3,lw=1.0,color=COLORS[si])
         ax.set(xlim=(-.24,4.24),xticks=range(5),xticklabels=TICKS)
         if i<3:
             ax.tick_params(labelbottom=False)
@@ -266,21 +292,22 @@ def _build(output_dir):
         else:
             ax.set(ylim=(0,23),yticks=[0,10,20])
 
+    section_offset += .10
     heading(11.36,'g','Sensitivity to spatial shifts')
-    legend(11.36,REGION_NAMES[:3],COLORS[:3],MARKERS[:3],x=4.47)
+    legend(11.36,REGION_NAMES[:3],COLORS[:3],MARKERS[:3],x=4.15)
     for j,key in enumerate(KEYS):
         ax=axis(.60+j*1.59,11.75,1.35,.42)
         title(ax,MODELS[j])
         for ri,region in enumerate(REGIONS[:3]):
             q=shift[(shift.model==key)&(shift.region==region)].sort_values('shift_px')
             assert list(q.shift_px)==[0,1,2,3,5]
-            ax.plot(q.shift_px,q.relative_mean_change_percent,marker=MARKERS[ri],ms=3.3,color=COLORS[ri],lw=1.)
+            ax.plot(q.shift_px,q.relative_mean_change_percent,marker=MARKERS[ri],ms=4.0,color=COLORS[ri],lw=1.)
         ax.set(xlim=(-.18,5.18),ylim=(-.5,10.5),yticks=[0,5,10],xticks=[0,1,2,3,5])
         if j==0:
             ax.set_ylabel('ΔL1 (%)',labelpad=3)
         else:
             ax.tick_params(labelleft=False)
-    text(4.48,12.44,'Predicted UV displacement (px)',ha='center',fontsize=8.5)
+    text(4.48,12.44,'Predicted UV displacement (px)',ha='center',fontsize=10.5)
 
     for suffix in ['pdf','svg','png']:
         fig.savefig(OUT/('Figure3.'+suffix),dpi=350)
@@ -292,8 +319,8 @@ def _build(output_dir):
     provenance['polarized_crops'] = pl_info
     (OUT/'Figure3_ROI_provenance.json').write_text(json.dumps(provenance,ensure_ascii=False,indent=2),encoding='utf8')
 
-    caption_en='''Figure 3. Reconstruction from RGB across image, anatomical and UV-signal measurements. The five models are single-target U-Net (Single U-Net), multi-target U-Net (Multi U-Net), U-Net++, Swin Transformer (Swin) and latent diffusion model (LDM). (a) Rows show UV, PLH and PLV from one held-out capture. The ground truth column shows the measured target and the next five columns show reconstructions from its paired RGB image. All panels use the same nasal crop and display range. (b) Regional mean absolute reconstruction error (L1) for UV, parallel-polarized light (PLH) and cross-polarized light (PLV). Error bars show one between-capture standard deviation. P, porphyrin-signal region; D, UV-spot region; O, other valid skin; F, full valid face. (c) Full-face L1 on matched captures. UV and PL bars show the two reconstruction errors; the grey segment shows the paired reduction from UV to the polarized target. (d) Absolute-agreement ICC(A,1) between measured and reconstructed regional mean red, green and blue intensities. Symbols identify models, and horizontal segments connect the lowest and highest model estimates in each anatomical region. Slight vertical offsets separate overlapping symbols. (e) UV object-count and area agreement and local detection. Count MAE measures the absolute difference in object count; count ICC measures count agreement. Area MAE measures the error in occupied area fraction, in percentage points (pp); area ICC measures area-fraction agreement. Local AUROC and PR-AUC assess the detection of signal presence in local windows. (f) Mask Dice, object precision, recall and F1, matched-centroid error, and the number of captures with matched objects, using a 5-pixel centroid tolerance. k denotes thousands of captures. (g) Relative change in regional L1 after shifting the predicted UV image by the indicated displacement, without added blur. A dash marks an unavailable estimate for that panel.'''
-    caption_cn='''图3　从图像、解剖区域和UV信号三个尺度评价RGB重建。五种模型分别为单目标U-Net（Single U-Net）、多目标U-Net（Multi U-Net）、U-Net++、Swin Transformer（Swin）和潜扩散模型（LDM）。（a）三行依次为同一测试样本的 UV、PLH 和 PLV。Ground truth 列为各模态的实测图像，右侧五列为五个模型从配对 RGB 图像得到的重建。所有图像均使用相同的鼻部裁剪坐标和显示范围。（b）UV、PLH和PLV各区域的平均绝对重建误差L1，误差线表示记录间的一个标准差。P为卟啉信号区，D为UV斑区，O为其余有效皮肤，F为全脸有效区域。（c）在配对记录上比较全脸L1。UV和PL柱表示各自重建误差，灰色区段表示UV相对于对应偏振模态的配对误差差值。（d）实测与重建图像中各解剖区域平均红、绿、蓝通道强度的绝对一致性ICC(A,1)。不同符号表示模型，水平线连接该区域模型估计的最小值与最大值；轻微纵向错位用于分开重叠符号。（e）UV对象数量、面积及局部存在检测。Count MAE表示对象计数的平均绝对误差，Count ICC表示计数一致性；Area MAE表示面积占比误差，单位为百分点，Area ICC表示面积占比一致性；Local AUROC与PR-AUC评价局部窗口内是否存在目标信号。（f）在质心距离容限为5像素时，评价掩膜Dice、对象匹配精确率、召回率、F1、匹配对象中心误差和存在匹配对象的记录数，k表示千条记录。（g）在不额外模糊的条件下，移动预测UV图像后各区域L1的相对变化。横线表示该子图缺少已验收估计值。'''
+    caption_en='''Figure 3. Reconstruction from RGB across image, anatomical and UV-signal measurements. The five models are single-target U-Net (Single U-Net), multi-target U-Net (Multi U-Net), U-Net++, Swin Transformer (Swin) and latent diffusion model (LDM). (a) Rows show UV, PLH and PLV from one held-out capture. The ground truth column shows the measured target and the next five columns show reconstructions from its paired RGB image. All images in (a) use the same nasal crop and display range. (b) Regional mean absolute reconstruction error (L1) for UV, parallel-polarized light (PLH) and cross-polarized light (PLV). Error bars show one between-capture standard deviation. The region labels are P (Porphyrin), D (UV spots), O (Other) and F (Full face). Other denotes valid facial skin outside P and D. (c) Full-face L1 on matched captures. UV and PL bars show the two reconstruction errors; the grey segment shows the paired reduction from UV to the polarized target. (d) Absolute-agreement ICC(A,1) between measured and reconstructed regional mean red, green and blue intensities. Symbols identify models, and horizontal segments connect the lowest and highest model estimates in each anatomical region. Slight vertical offsets separate overlapping symbols. (e) UV object-count and area agreement and local detection. Count MAE measures the absolute difference in object count; count ICC measures count agreement. Area MAE measures the error in occupied area fraction, in percentage points (pp); area ICC measures area-fraction agreement. Local AUROC and PR-AUC assess the detection of signal presence in local windows. (f) Mask Dice, object precision, recall and F1, matched-centroid error, and the number of captures with matched objects, using a 5-pixel centroid tolerance. k denotes thousands of captures. (g) Relative change in regional L1 after shifting the predicted UV image by the indicated displacement, without added blur. A dash marks an unavailable estimate for that panel.'''
+    caption_cn='''图3　从图像、解剖区域和UV信号三个尺度评价RGB重建。五种模型分别为单目标U-Net（Single U-Net）、多目标U-Net（Multi U-Net）、U-Net++、Swin Transformer（Swin）和潜扩散模型（LDM）。（a）三行依次为同一测试样本的 UV、PLH 和 PLV。Ground truth 列为各模态的实测图像，右侧五列为五个模型从配对 RGB 图像得到的重建。所有图像均使用相同的鼻部裁剪坐标和显示范围。（b）UV、PLH和PLV各区域的平均绝对重建误差L1，误差线表示记录间的一个标准差。图例中 P（Porphyrin）为卟啉信号区，D（UV spots）为 UV 斑区，O（Other）为 P、D 以外的有效皮肤，F（Full face）为全脸有效区域。（c）在配对记录上比较全脸L1。UV和PL柱表示各自重建误差，灰色区段表示UV相对于对应偏振模态的配对误差差值。（d）实测与重建图像中各解剖区域平均红、绿、蓝通道强度的绝对一致性ICC(A,1)。不同符号表示模型，水平线连接该区域模型估计的最小值与最大值；轻微纵向错位用于分开重叠符号。（e）UV对象数量、面积及局部存在检测。Count MAE表示对象计数的平均绝对误差，Count ICC表示计数一致性；Area MAE表示面积占比误差，单位为百分点，Area ICC表示面积占比一致性；Local AUROC与PR-AUC评价局部窗口内是否存在目标信号。（f）在质心距离容限为5像素时，评价掩膜Dice、对象匹配精确率、召回率、F1、匹配对象中心误差和存在匹配对象的记录数，k表示千条记录。（g）在不额外模糊的条件下，移动预测UV图像后各区域L1的相对变化。横线表示该子图缺少已验收估计值。'''
     (OUT/'Figure3_caption_EN.txt').write_text(caption_en,encoding='utf8')
     (OUT/'Figure3_caption_CN.txt').write_text(caption_cn,encoding='utf8')
     return {name: OUT/name for name in ['Figure3.pdf','Figure3.svg','Figure3.png','Figure3_preview.png']}
