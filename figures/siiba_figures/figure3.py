@@ -120,7 +120,9 @@ def _build(output_dir):
             assert np.isfinite(arr).all() and arr.min() >= 0 and arr.max() <= 1
             assert hashlib.sha256(arr.tobytes(order='C')).hexdigest() == pl_info['array_sha256'][key]
             images[modality.upper(), name] = arr
-    for j,label in enumerate(['Ground truth',*MODELS]):
+    crop_labels = ['Ground truth', 'Single-target U-Net', 'Multi-target U-Net', 'U-Net++',
+                   'Swin Transformer', 'Latent diffusion model']
+    for j,label in enumerate(crop_labels):
         text(1.19+j*1.31,.45,label,ha='center',fontsize=8.5,weight='bold' if j==0 else 'normal')
     for i,target in enumerate(TARGETS):
         top = .58 + i * row_step
