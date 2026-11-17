@@ -32,9 +32,7 @@ WRAPPED_NAMES = [name.replace('target U-Net', 'target\nU-Net')
                  for name in MODEL_NAMES]
 REGIONS = list(style.REGION_ORDER)
 COLORS = [style.REGION_COLORS[r] for r in REGIONS]
-MARKERS = [style.REGION_MARKERS[r] for r in REGIONS]
 MODEL_MARKERS = list(style.MODEL_MARKERS)
-REGION_NAMES = [r+'  '+style.REGION_NAMES[r] for r in REGIONS]
 TARGETS = list(style.TARGET_ORDER)
 TARGET_COLORS = ['#414953', '#B77B64', '#79668F']
 INK, GRID = '#20252A', '#E4E7E9'
@@ -96,12 +94,14 @@ def _build(output_dir):
     def title(ax,s):
         ax.set_title(s,loc='left',fontsize=10.5,weight='bold',pad=4)
 
-    def legend(y,labels,colors,markers,x=.45,size=10,ncol=None,edge_white=False,marker_size=5.6):
-        handles=[]
-        for i,(label,color,marker) in enumerate(zip(labels,colors,markers)):
-            hollow = edge_white and i==3
-            handles.append(Line2D([],[],ls='none',marker=marker,ms=marker_size,color=color,
-                markerfacecolor='white' if hollow else color,markeredgewidth=.9,label=label))
+    def region_legend(y, regions, x):
+        style.add_region_legend(fig, regions, (x/W, 1-(section_offset+y)/H),
+                                fontsize=10, loc='center left', borderaxespad=0)
+
+    def legend(y,labels,colors,markers,x=.45,size=10,ncol=None,marker_size=5.6):
+        handles = [Line2D([], [], ls='none', marker=marker, ms=marker_size, color=color,
+                          markeredgewidth=.9, label=label)
+                   for label, color, marker in zip(labels, colors, markers)]
         fig.legend(handles=handles,loc='center left',bbox_to_anchor=(x/W,1-(section_offset+y)/H),
             ncol=ncol or len(labels),frameon=False,fontsize=size,handletextpad=.4,
             columnspacing=.95,handlelength=1.05,borderaxespad=0)
@@ -151,7 +151,7 @@ def _build(output_dir):
 
     section_offset = 2 * row_step + crop_header_space
     heading(1.63,'b','Regional reconstruction error')
-    legend(1.63,REGION_NAMES,COLORS,MARKERS,x=3.91,edge_white=True)
+    region_legend(1.63,REGIONS,x=3.91)
     for ti,target in enumerate(TARGETS):
         ax=axis(.61+ti*2.72,2.00,2.19,.76)
         title(ax,'RGB → '+target)
@@ -163,9 +163,10 @@ def _build(output_dir):
             for ri,region in enumerate(REGIONS):
                 q=a.loc[(key,target,region)]
                 assert 0<=q['mean']-q['sd'] and q['mean']+q['sd']<maximum
-                ax.errorbar(j+(ri-1.5)*.19,q['mean'],yerr=q['sd'],fmt=MARKERS[ri],
-                    ms=4.5,color=COLORS[ri],mfc='white' if ri==3 else COLORS[ri],
-                    mew=.8,lw=.7,capsize=1.4,capthick=.65,zorder=3)
+                point = style.region_line_style(region, scale=1.25)
+                point['ls'] = 'none'
+                ax.errorbar(j+(ri-1.5)*.19,q['mean'],yerr=q['sd'],fmt='',
+                    **point,elinewidth=.7,capsize=1.4,capthick=.65,zorder=3)
         ax.set(xlim=(-.5,4.5),ylim=(0,maximum),yticks=np.arange(5)*unit,
             xticks=range(5),xticklabels=WRAPPED_NAMES)
         slant_model_names(ax)
@@ -258,7 +259,7 @@ def _build(output_dir):
 
     section_offset += icc_extra_height + .28
     heading(8.02,'e','UV counts, area and local detection')
-    legend(8.02,REGION_NAMES[:2],COLORS[:2],MARKERS[:2],x=5.62)
+    region_legend(8.02,REGIONS[:2],x=5.62)
     ctitles=['Count MAE','Count ICC','Area MAE\n(pp)','Area ICC','Local\nAUROC','Local\nPR-AUC']
     limits=[(-20,630),(-.03,1.),(-.08,2.55),(-.03,1.),(.49,.82),(.48,.92)]
     ticks=[[0,300,600],[0,.5,1],[0,1,2],[0,.5,1],[.5,.65,.8],[.5,.7,.9]]
@@ -274,7 +275,7 @@ def _build(output_dir):
                 if '[' in cell:
                     lo,hi=map(float,re.search(r'\[([^\]]+)\]',cell).group(1).split(','))
                     ax.plot([lo,hi],[y,y],lw=.85,color=COLORS[si])
-                ax.plot(value,y,marker=MARKERS[si],color=COLORS[si],ms=4.4,lw=0)
+                ax.plot([value],[y],**style.region_line_style(signal, scale=1.25))
                 plotted+=1
         ax.set(ylim=(-.55,4.55),yticks=range(5),yticklabels=MODEL_NAMES[::-1] if i==0 else [],xlim=lim,xticks=xt)
         ax.xaxis.set_major_formatter(FormatStrFormatter('%g'))
@@ -284,7 +285,7 @@ def _build(output_dir):
 
     section_offset += .30
     heading(9.47,'f','Spatial matching of UV objects')
-    legend(9.47,REGION_NAMES[:2],COLORS[:2],MARKERS[:2],x=5.62)
+    region_legend(9.47,REGIONS[:2],x=5.62)
     dtitles=['Mask Dice','Precision','Recall','F1','Centre error (px)','Matched groups (k)']
     for i,name in enumerate(dtitles):
         ax=axis(.60+(i%3)*2.63,9.84 if i<3 else 10.58,2.25,.37)
@@ -295,7 +296,7 @@ def _build(output_dir):
             vals=np.array([float(str(sub.iloc[i][m]).split()[0]) for m in CN])
             if i==5:
                 vals/=1000
-            ax.plot(range(5),vals,marker=MARKERS[si],ms=4.3,lw=1.0,color=COLORS[si])
+            ax.plot(range(5),vals,**style.region_line_style(signal, scale=1.25))
         ax.set(xlim=(-.24,4.24),xticks=range(5),xticklabels=WRAPPED_NAMES)
         if i<3:
             ax.tick_params(labelbottom=False)
@@ -310,14 +311,15 @@ def _build(output_dir):
 
     section_offset += .10 + slanted_tick_space
     heading(11.36,'g','Sensitivity to spatial shifts')
-    legend(11.36,REGION_NAMES[:3],COLORS[:3],MARKERS[:3],x=4.15)
+    region_legend(11.36,REGIONS[:3],x=4.15)
     for j,key in enumerate(KEYS):
         ax=axis(.60+j*1.59,11.75+shift_title_space,1.35,.42)
         title(ax,WRAPPED_NAMES[j])
         for ri,region in enumerate(REGIONS[:3]):
             q=shift[(shift.model==key)&(shift.region==region)].sort_values('shift_px')
             assert list(q.shift_px)==[0,1,2,3,5]
-            ax.plot(q.shift_px,q.relative_mean_change_percent,marker=MARKERS[ri],ms=4.0,color=COLORS[ri],lw=1.)
+            ax.plot(q.shift_px,q.relative_mean_change_percent,
+                    **style.region_line_style(region, scale=1.25))
         ax.set(xlim=(-.18,5.18),ylim=(-.5,10.5),yticks=[0,5,10],xticks=[0,1,2,3,5])
         if j==0:
             ax.set_ylabel('ΔL1 (%)',labelpad=3)

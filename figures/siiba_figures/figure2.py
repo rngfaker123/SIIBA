@@ -15,7 +15,7 @@ from matplotlib.lines import Line2D
 from matplotlib.ticker import FixedLocator, FixedFormatter, NullLocator
 
 from .style import (FONT, REGION_ORDER, REGION_COLORS, REGION_NAMES,
-                    REGION_MARKERS, REGION_LINESTYLES, TARGET_ORDER)
+                    TARGET_ORDER, region_line_style, add_region_legend)
 
 ROOT = Path(__file__).resolve().parents[1]
 INPUT = INPUT_ROOT / 'figure2'
@@ -133,10 +133,6 @@ def build(output_dir):
     })
     W, H = 8.5, 9.0
     fig = plt.figure(figsize=(W, H))
-    REGION_LABELS = [f'{region}  {REGION_NAMES[region]}' for region in DOMAINS]
-    MARKERS = REGION_MARKERS
-    LINE_STYLES = REGION_LINESTYLES
-    MARKER_SIZES = {'P': 3.6, 'D': 3.7, 'O': 3.9, 'F': 6.4}
 
 
     def text(x, y, value, **kwargs):
@@ -156,20 +152,8 @@ def build(output_dir):
         text(.36, y - .017, label, fontsize=11, weight='bold', va='top')
 
 
-    def region_style(domain):
-        color = COLORS[domain]
-        return dict(color=color, lw=1.0, ls=LINE_STYLES[domain],
-                    marker=MARKERS[domain], ms=MARKER_SIZES[domain],
-                    mfc='none' if domain == 'F' else color, mec=color,
-                    mew=.9 if domain == 'F' else .4)
-
-
     def region_legend(y):
-        handles = [Line2D([], [], **region_style(d), label=label)
-                   for d, label in zip(DOMAINS, REGION_LABELS)]
-        fig.legend(handles=handles, loc='center right',
-                   bbox_to_anchor=(8.37 / W, y / H), ncol=4, frameon=False,
-                   fontsize=8, handlelength=1.4, handletextpad=.3, columnspacing=.75)
+        add_region_legend(fig, DOMAINS, (8.37 / W, y / H), fontsize=8, loc='center right')
 
 
     heading('a', 'Analysis domains and shared information', 8.91)
@@ -261,7 +245,7 @@ def build(output_dir):
                               key=lambda r: r[field])
                 x = [r[field] for r in rows]
                 y = [r['mean'] for r in rows]
-                style = region_style(domain)
+                style = region_line_style(domain)
                 ax.errorbar(x, y, yerr=[r['sample_SD'] for r in rows], fmt='none',
                             ecolor=style['color'], capsize=1.2, capthick=.5,
                             elinewidth=.5, zorder=2)
@@ -348,7 +332,7 @@ def build(output_dir):
         for domain in DOMAINS:
             rows = [next(r for r in ita if r['target'] == target and r['domain'] == domain and r['cohort'] == stratum)
                     for stratum in STRATA]
-            style = region_style(domain)
+            style = region_line_style(domain)
             ax.errorbar(np.arange(6), [r['mean_bits'] for r in rows],
                         yerr=[r['sample_sd_bits'] for r in rows], fmt='none',
                         ecolor=COLORS[domain], elinewidth=.5, capsize=1.2, capthick=.5, zorder=2)
