@@ -20,10 +20,16 @@ except ImportError:
 
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 INPUT = INPUT_ROOT / 'figure3'
-MODELS = list(style.MODEL_ORDER)
+PAIR_TABLE_MODELS = list(style.MODEL_ORDER)
+MODEL_NAMES = ('Single-target U-Net', 'Multi-target U-Net', 'U-Net++',
+               'Swin Transformer', 'Latent diffusion model')
 KEYS = ['unet_single', 'unet_multi', 'unetplusplus', 'swin', 'ldm']
 CN = ['单目标 U-Net', '多目标 U-Net', 'U-Net++', 'Swin', 'LDM']
-TICKS = ['Single\nU-Net', 'Multi\nU-Net', 'U-Net++', 'Swin', 'LDM']
+# Wrap at word boundaries while keeping the spelling used in panel a.
+WRAPPED_NAMES = [name.replace('target U-Net', 'target\nU-Net')
+                 .replace('Swin Transformer', 'Swin\nTransformer')
+                 .replace('Latent diffusion model', 'Latent\ndiffusion model')
+                 for name in MODEL_NAMES]
 REGIONS = list(style.REGION_ORDER)
 COLORS = [style.REGION_COLORS[r] for r in REGIONS]
 MARKERS = [style.REGION_MARKERS[r] for r in REGIONS]
@@ -66,7 +72,9 @@ def _build(output_dir):
     icc_height = 1.30
     icc_row_step = icc_height + .12
     icc_extra_height = 3 * (icc_row_step - .82)
-    W, H = 8.5, 12.6 + 2 * row_step + crop_header_space + icc_extra_height + 1.01
+    slanted_tick_space = .62
+    shift_title_space = .20
+    W, H = 8.5, 12.6 + 2 * row_step + crop_header_space + icc_extra_height + 1.01 + 3*slanted_tick_space + shift_title_space
     fig = plt.figure(figsize=(W,H),facecolor='white')
     section_offset = 0.
 
@@ -98,6 +106,11 @@ def _build(output_dir):
             ncol=ncol or len(labels),frameon=False,fontsize=size,handletextpad=.4,
             columnspacing=.95,handlelength=1.05,borderaxespad=0)
 
+    def slant_model_names(ax):
+        for tick in ax.get_xticklabels():
+            tick.set(rotation=55, ha='right', va='top', rotation_mode='anchor')
+        ax.tick_params(axis='x', pad=4)
+
     def missing(ax,j):
         ax.text(j,.05,'—',transform=ax.get_xaxis_transform(),ha='center',fontsize=10)
 
@@ -124,8 +137,7 @@ def _build(output_dir):
             assert np.isfinite(arr).all() and arr.min() >= 0 and arr.max() <= 1
             assert hashlib.sha256(arr.tobytes(order='C')).hexdigest() == pl_info['array_sha256'][key]
             images[modality.upper(), name] = arr
-    crop_labels = ['Ground truth', 'Single-target U-Net', 'Multi-target U-Net', 'U-Net++',
-                   'Swin Transformer', 'Latent diffusion model']
+    crop_labels = ['Ground truth', *MODEL_NAMES]
     for j,label in enumerate(crop_labels):
         label = label.replace('target U-Net','target\nU-Net').replace('diffusion model','diffusion\nmodel')
         text(1.19+j*1.31,.55,label,ha='center',fontsize=10.5,weight='bold' if j==0 else 'normal')
@@ -155,18 +167,19 @@ def _build(output_dir):
                     ms=4.5,color=COLORS[ri],mfc='white' if ri==3 else COLORS[ri],
                     mew=.8,lw=.7,capsize=1.4,capthick=.65,zorder=3)
         ax.set(xlim=(-.5,4.5),ylim=(0,maximum),yticks=np.arange(5)*unit,
-            xticks=range(5),xticklabels=TICKS)
+            xticks=range(5),xticklabels=WRAPPED_NAMES)
+        slant_model_names(ax)
         ax.yaxis.set_major_formatter(FormatStrFormatter('%.2f' if ti==0 else '%.3f'))
         if ti==0:
             ax.set_ylabel('L1 error',labelpad=3)
 
-    section_offset += .12
+    section_offset += .12 + slanted_tick_space
     heading(3.17,'c','Paired full-face reconstruction error')
     legend(3.17,['UV','UV − PL','PLH','PLV'],[TARGET_COLORS[0],'#CED4D8',*TARGET_COLORS[1:]],['s']*4,x=5.02)
     for ti,target in enumerate(TARGETS[1:]):
         ax=axis(.60+ti*4.02,3.60,3.63,.62)
         title(ax,'RGB → '+target+' vs RGB → UV')
-        for j,model in enumerate(MODELS):
+        for j,model in enumerate(PAIR_TABLE_MODELS):
             if (model,target) not in pairs.index:
                 missing(ax,j)
                 continue
@@ -180,13 +193,14 @@ def _build(output_dir):
             ax.bar(j+.25,pl,width=.18,color=TARGET_COLORS[ti+1],zorder=3)
             ax.plot([j-.16,j-.09],[uv,uv],color='#7C858B',lw=.6)
             ax.plot([j+.09,j+.16],[pl,pl],color='#7C858B',lw=.6)
-        ax.set(xlim=(-.5,4.5),ylim=(0,.07),yticks=[0,.02,.04,.06],xticks=range(5),xticklabels=TICKS)
+        ax.set(xlim=(-.5,4.5),ylim=(0,.07),yticks=[0,.02,.04,.06],xticks=range(5),xticklabels=WRAPPED_NAMES)
+        slant_model_names(ax)
         if ti==0:
             ax.set_ylabel('L1 error',labelpad=3)
 
-    section_offset += .21
+    section_offset += .21 + slanted_tick_space
     heading(4.59,'d','Agreement in regional mean colour intensity')
-    legend(4.96,crop_labels[1:],['#50585E']*5,MODEL_MARKERS,x=.36,marker_size=8.5)
+    legend(4.96,MODEL_NAMES,['#50585E']*5,MODEL_MARKERS,x=.36,marker_size=8.5)
     areas=['Forehead','Image-left cheek','Image-right cheek','Nose','Chin','Full valid face (F)']
     area_labels=['Forehead','Image-left cheek','Image-right cheek','Nose','Chin','Full face']
     arch=['Single-target U-Net','Multi-target U-Net','U-Net++','Swin','LDM']
@@ -250,7 +264,7 @@ def _build(output_dir):
     ticks=[[0,300,600],[0,.5,1],[0,1,2],[0,.5,1],[.5,.65,.8],[.5,.7,.9]]
     plotted=0
     for i,(name,lim,xt) in enumerate(zip(ctitles,limits,ticks)):
-        ax=axis(1.28+i*1.19,8.55,.95,.85,grid='x')
+        ax=axis(1.58+i*1.14,8.55,.90,.85,grid='x')
         ax.set_title(name,fontsize=10,weight='bold',pad=5)
         for si,signal in enumerate('PD'):
             row=C.loc[C.iloc[:,0]==signal].iloc[i]
@@ -262,7 +276,7 @@ def _build(output_dir):
                     ax.plot([lo,hi],[y,y],lw=.85,color=COLORS[si])
                 ax.plot(value,y,marker=MARKERS[si],color=COLORS[si],ms=4.4,lw=0)
                 plotted+=1
-        ax.set(ylim=(-.55,4.55),yticks=range(5),yticklabels=MODELS[::-1] if i==0 else [],xlim=lim,xticks=xt)
+        ax.set(ylim=(-.55,4.55),yticks=range(5),yticklabels=MODEL_NAMES[::-1] if i==0 else [],xlim=lim,xticks=xt)
         ax.xaxis.set_major_formatter(FormatStrFormatter('%g'))
         ax.tick_params(axis='y',length=0)
         ax.spines['left'].set_visible(False)
@@ -282,9 +296,11 @@ def _build(output_dir):
             if i==5:
                 vals/=1000
             ax.plot(range(5),vals,marker=MARKERS[si],ms=4.3,lw=1.0,color=COLORS[si])
-        ax.set(xlim=(-.24,4.24),xticks=range(5),xticklabels=TICKS)
+        ax.set(xlim=(-.24,4.24),xticks=range(5),xticklabels=WRAPPED_NAMES)
         if i<3:
             ax.tick_params(labelbottom=False)
+        else:
+            slant_model_names(ax)
         if i<4:
             ax.set(ylim=(0,.51),yticks=[0,.25,.5])
         elif i==4:
@@ -292,12 +308,12 @@ def _build(output_dir):
         else:
             ax.set(ylim=(0,23),yticks=[0,10,20])
 
-    section_offset += .10
+    section_offset += .10 + slanted_tick_space
     heading(11.36,'g','Sensitivity to spatial shifts')
     legend(11.36,REGION_NAMES[:3],COLORS[:3],MARKERS[:3],x=4.15)
     for j,key in enumerate(KEYS):
-        ax=axis(.60+j*1.59,11.75,1.35,.42)
-        title(ax,MODELS[j])
+        ax=axis(.60+j*1.59,11.75+shift_title_space,1.35,.42)
+        title(ax,WRAPPED_NAMES[j])
         for ri,region in enumerate(REGIONS[:3]):
             q=shift[(shift.model==key)&(shift.region==region)].sort_values('shift_px')
             assert list(q.shift_px)==[0,1,2,3,5]
@@ -307,7 +323,7 @@ def _build(output_dir):
             ax.set_ylabel('ΔL1 (%)',labelpad=3)
         else:
             ax.tick_params(labelleft=False)
-    text(4.48,12.44,'Predicted UV displacement (px)',ha='center',fontsize=10.5)
+    text(4.48,12.44+shift_title_space,'Predicted UV displacement (px)',ha='center',fontsize=10.5)
 
     for suffix in ['pdf','svg','png']:
         fig.savefig(OUT/('Figure3.'+suffix),dpi=350)
@@ -319,8 +335,8 @@ def _build(output_dir):
     provenance['polarized_crops'] = pl_info
     (OUT/'Figure3_ROI_provenance.json').write_text(json.dumps(provenance,ensure_ascii=False,indent=2),encoding='utf8')
 
-    caption_en='''Figure 3. Reconstruction from RGB across image, anatomical and UV-signal measurements. The five models are single-target U-Net (Single U-Net), multi-target U-Net (Multi U-Net), U-Net++, Swin Transformer (Swin) and latent diffusion model (LDM). (a) Rows show UV, PLH and PLV from one held-out capture. The ground truth column shows the measured target and the next five columns show reconstructions from its paired RGB image. All images in (a) use the same nasal crop and display range. (b) Regional mean absolute reconstruction error (L1) for UV, parallel-polarized light (PLH) and cross-polarized light (PLV). Error bars show one between-capture standard deviation. The region labels are P (Porphyrin), D (UV spots), O (Other) and F (Full face). Other denotes valid facial skin outside P and D. (c) Full-face L1 on matched captures. UV and PL bars show the two reconstruction errors; the grey segment shows the paired reduction from UV to the polarized target. (d) Absolute-agreement ICC(A,1) between measured and reconstructed regional mean red, green and blue intensities. Symbols identify models, and horizontal segments connect the lowest and highest model estimates in each anatomical region. Slight vertical offsets separate overlapping symbols. (e) UV object-count and area agreement and local detection. Count MAE measures the absolute difference in object count; count ICC measures count agreement. Area MAE measures the error in occupied area fraction, in percentage points (pp); area ICC measures area-fraction agreement. Local AUROC and PR-AUC assess the detection of signal presence in local windows. (f) Mask Dice, object precision, recall and F1, matched-centroid error, and the number of captures with matched objects, using a 5-pixel centroid tolerance. k denotes thousands of captures. (g) Relative change in regional L1 after shifting the predicted UV image by the indicated displacement, without added blur. A dash marks an unavailable estimate for that panel.'''
-    caption_cn='''图3　从图像、解剖区域和UV信号三个尺度评价RGB重建。五种模型分别为单目标U-Net（Single U-Net）、多目标U-Net（Multi U-Net）、U-Net++、Swin Transformer（Swin）和潜扩散模型（LDM）。（a）三行依次为同一测试样本的 UV、PLH 和 PLV。Ground truth 列为各模态的实测图像，右侧五列为五个模型从配对 RGB 图像得到的重建。所有图像均使用相同的鼻部裁剪坐标和显示范围。（b）UV、PLH和PLV各区域的平均绝对重建误差L1，误差线表示记录间的一个标准差。图例中 P（Porphyrin）为卟啉信号区，D（UV spots）为 UV 斑区，O（Other）为 P、D 以外的有效皮肤，F（Full face）为全脸有效区域。（c）在配对记录上比较全脸L1。UV和PL柱表示各自重建误差，灰色区段表示UV相对于对应偏振模态的配对误差差值。（d）实测与重建图像中各解剖区域平均红、绿、蓝通道强度的绝对一致性ICC(A,1)。不同符号表示模型，水平线连接该区域模型估计的最小值与最大值；轻微纵向错位用于分开重叠符号。（e）UV对象数量、面积及局部存在检测。Count MAE表示对象计数的平均绝对误差，Count ICC表示计数一致性；Area MAE表示面积占比误差，单位为百分点，Area ICC表示面积占比一致性；Local AUROC与PR-AUC评价局部窗口内是否存在目标信号。（f）在质心距离容限为5像素时，评价掩膜Dice、对象匹配精确率、召回率、F1、匹配对象中心误差和存在匹配对象的记录数，k表示千条记录。（g）在不额外模糊的条件下，移动预测UV图像后各区域L1的相对变化。横线表示该子图缺少已验收估计值。'''
+    caption_en='''Figure 3. Reconstruction from RGB across image, anatomical and UV-signal measurements. (a) Rows show UV, PLH and PLV from one held-out capture. The ground truth column shows the measured target and the next five columns show reconstructions from its paired RGB image. All images in (a) use the same nasal crop and display range. (b) Regional mean absolute reconstruction error (L1) for UV, parallel-polarized light (PLH) and cross-polarized light (PLV). Error bars show one between-capture standard deviation. The region labels are P (Porphyrin), D (UV spots), O (Other) and F (Full face). Other denotes valid facial skin outside P and D. (c) Full-face L1 on matched captures. UV and PL bars show the two reconstruction errors; the grey segment shows the paired reduction from UV to the polarized target. (d) Absolute-agreement ICC(A,1) between measured and reconstructed regional mean red, green and blue intensities. Symbols identify models, and horizontal segments connect the lowest and highest model estimates in each anatomical region. Slight vertical offsets separate overlapping symbols. (e) UV object-count and area agreement and local detection. Count MAE measures the absolute difference in object count; count ICC measures count agreement. Area MAE measures the error in occupied area fraction, in percentage points (pp); area ICC measures area-fraction agreement. Local AUROC and PR-AUC assess the detection of signal presence in local windows. (f) Mask Dice, object precision, recall and F1, matched-centroid error, and the number of captures with matched objects, using a 5-pixel centroid tolerance. k denotes thousands of captures. (g) Relative change in regional L1 after shifting the predicted UV image by the indicated displacement, without added blur. A dash marks an unavailable estimate for that panel.'''
+    caption_cn='''图3　从图像、解剖区域和UV信号三个尺度评价RGB重建。（a）三行依次为同一测试样本的 UV、PLH 和 PLV。Ground truth 列为各模态的实测图像，右侧五列为五个模型从配对 RGB 图像得到的重建。所有图像均使用相同的鼻部裁剪坐标和显示范围。（b）UV、PLH和PLV各区域的平均绝对重建误差L1，误差线表示记录间的一个标准差。图例中 P（Porphyrin）为卟啉信号区，D（UV spots）为 UV 斑区，O（Other）为 P、D 以外的有效皮肤，F（Full face）为全脸有效区域。（c）在配对记录上比较全脸L1。UV和PL柱表示各自重建误差，灰色区段表示UV相对于对应偏振模态的配对误差差值。（d）实测与重建图像中各解剖区域平均红、绿、蓝通道强度的绝对一致性ICC(A,1)。不同符号表示模型，水平线连接该区域模型估计的最小值与最大值；轻微纵向错位用于分开重叠符号。（e）UV对象数量、面积及局部存在检测。Count MAE表示对象计数的平均绝对误差，Count ICC表示计数一致性；Area MAE表示面积占比误差，单位为百分点，Area ICC表示面积占比一致性；Local AUROC与PR-AUC评价局部窗口内是否存在目标信号。（f）在质心距离容限为5像素时，评价掩膜Dice、对象匹配精确率、召回率、F1、匹配对象中心误差和存在匹配对象的记录数，k表示千条记录。（g）在不额外模糊的条件下，移动预测UV图像后各区域L1的相对变化。横线表示该子图缺少已验收估计值。'''
     (OUT/'Figure3_caption_EN.txt').write_text(caption_en,encoding='utf8')
     (OUT/'Figure3_caption_CN.txt').write_text(caption_cn,encoding='utf8')
     return {name: OUT/name for name in ['Figure3.pdf','Figure3.svg','Figure3.png','Figure3_preview.png']}
