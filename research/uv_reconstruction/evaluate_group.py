@@ -10,7 +10,7 @@ HERE = Path(__file__).resolve().parent
 sys.path.insert(0, str(HERE / "regional_metrics"))
 sys.path.insert(0, str(HERE.parent / "pl_test"))
 from tools import uv_architecture_comparison_metrics_v10 as numeric
-from uv_three_region_eval_20261025 import measure, validate_weights
+from regional_image_metrics import measure, validate_weights
 from pl_measure import cpu_regions
 
 

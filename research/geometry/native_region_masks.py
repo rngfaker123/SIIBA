@@ -384,7 +384,7 @@ def run(args):
 
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--batch-module",type=Path,default=Path(__file__).with_name("mi_atlas_batch_20261025.py"))
+    parser.add_argument("--batch-module",type=Path,default=Path("/study/siiba/experiments/mi_atlas_six_20261025_v1/source/tools/mi_atlas_batch_20261025.py"))
     parser.add_argument("--catalog",type=Path)
     parser.add_argument("--frozen-config",type=Path)
     parser.add_argument("--output-root",type=Path)

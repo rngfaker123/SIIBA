@@ -19,9 +19,9 @@ import numpy as np
 from PIL import Image, ImageCms, ImageDraw
 
 try:
-    from . import uv_rgb_ita_20261025 as base
+    from . import rgb_skin_tone as base
 except ImportError:
-    import uv_rgb_ita_20261025 as base
+    import rgb_skin_tone as base
 
 BASE_SHA = 'ad37e8a0f63918f023a9a86c4a7469a25f1489308cc40fe3d4f5aa240caca05d'
 METHOD = copy.deepcopy(base.METHOD)

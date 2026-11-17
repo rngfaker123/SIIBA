@@ -33,7 +33,7 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from models.matched_training_batching import order_sha256
-from training.joint_clean_tail_20261014 import (
+from training.joint_unet_tail_batch import (
     iter_epoch_batches, resume_metadata, validate_resume_metadata,
     is_short_tail, tail_backward,
 )
@@ -52,8 +52,8 @@ BATCH = 16
 MICRO = 1
 VAL_KEYS = ("uv_nll", "l1_uv", "l1_plv", "l1_plh", "macro_l1", "sigma_mean")
 CODE_FILES = (
-    "training/train_joint_uv_uncertainty_clean_20261014.py",
-    "training/joint_clean_tail_20261014.py",
+    "training/train_multitarget_unet.py",
+    "training/joint_unet_tail_batch.py",
     "training/train_uv_uncertainty_fullimage.py",
     "models/joint_uv_uncertainty_unet.py", "models/unet_baseline.py",
     "models/highres_patch_dataset.py", "models/matched_training_batching.py",

@@ -212,8 +212,8 @@ def execute(report_path):
     shutil.copy2(code_path, build / 'original_split.py')
     shutil.copy2(Path(__file__), build / 'freeze_clean_dataset.py')
     shutil.copy2(report_path, build / 'review_completion.json')
-    shutil.copy2(Path(__file__).with_name('complete_uv_broad_review_20261013.py'), build / 'complete_broad_review.py')
-    shutil.copy2(Path(__file__).with_name('accept_reviewed_uv_range_20261013.py'), build / 'accept_reviewed_uv_range_20261013.py')
+    shutil.copy2(Path(__file__).with_name('finalize_uv_review_queue.py'), build / 'finalize_uv_review_queue.py')
+    shutil.copy2(Path(__file__).with_name('apply_uv_review_decisions.py'), build / 'apply_uv_review_decisions.py')
     for name in ('broad', 'high'):
         shutil.copy2(triage / ('queue_' + name + '.json'), build / ('queue_' + name + '.json'))
     summary = dict(dataset_version=VERSION, split_version=SPLIT_VERSION, frozen_at_utc=stamp,

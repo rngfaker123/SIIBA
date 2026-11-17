@@ -47,7 +47,7 @@ SCIENTIFIC_SOURCE_SHA = {
     "models/matched_training_batching.py": "02c664b2375a84bead4c9f5b95a26021c2adb19bcb7042037e5f0a86695f2ac4",
 }
 PARAMETERS = 9045924
-CODE_FILES = ("training/train_unetplusplus_uv_uncertainty_clean_20261015.py",) + tuple(SCIENTIFIC_SOURCE_SHA)
+CODE_FILES = ("training/train_unetplusplus.py",) + tuple(SCIENTIFIC_SOURCE_SHA)
 read_json, digest, save_json = ref.read_json, ref.digest, ref.save_json
 
 

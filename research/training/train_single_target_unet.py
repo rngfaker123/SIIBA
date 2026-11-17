@@ -42,7 +42,7 @@ SCIENTIFIC_SOURCE_SHA = {
 VAL_KEYS = ("nll", "l1", "mse", "sigma_mean", "standardized_squared_error",
             "standardized_residual_mean", "coverage68", "coverage95", "coverage99",
             "near_variance_floor_fraction")
-CODE_FILES = ("training/train_single_uv_uncertainty_clean_20261014.py", "models/uv_uncertainty_unet.py",
+CODE_FILES = ("training/train_single_target_unet.py", "models/uv_uncertainty_unet.py",
               "models/matched_training_batching.py", "models/unet_baseline.py", "models/highres_patch_dataset.py")
 
 

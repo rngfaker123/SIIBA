@@ -14,7 +14,7 @@ Parity report binds model_sha256 and runtime_fingerprints for preview/geometry/
 mask: each has python (lexical absolute path), python_sha256, pythonpath and
 versions (python plus exact keys in RUNTIME_MODULES). Versions are freshly
 probed before each controller start, including resume; no package installs run.
-Initial cohort comes from mi_atlas_cohort_20261025.py (flat modality fields,
+Initial cohort comes from mi_atlas_cohort.py (flat modality fields,
 paths relative to cohort.data_root). It is never refilled or reordered.
 
 Each complete case has frozen stage receipts, P/D/O/F PNGs and native four-source
@@ -24,7 +24,7 @@ No geometry-failure masks are fabricated. Incomplete stage
 folders are preserved in that case's interrupted/ directory before retry.
 All admitted cases use the identical subset for every N/seed/metric.
 
-CLI: python tools/mi_atlas_batch_20261025.py --config FILE --phase all|masks|mi
+CLI: python tools/mi_atlas_batch.py --config FILE --phase all|masks|mi
 Outputs JSON/JSONL only. No CSV/XLSX or full-pixel feature arrays are exported.
 """
 from __future__ import annotations
@@ -47,10 +47,10 @@ import uuid
 ROOT = Path(__file__).resolve().parents[1]
 VERSION = "mi_atlas_batch_20261025_v1"
 COHORT_SCHEMA = "mi_atlas_initial_clean_val_cohort_20261025_v1"
-STAGE_FILES = {"preview": "mi_atlas_frozen_preview_20261025.py",
-               "geometry": "mi_atlas_frozen_geometry_20261025.py",
-               "mask": "mi_atlas_frozen_mask_adapter_20261025.py",
-               "mi": "mi_atlas_six_metrics_20261025.py"}
+STAGE_FILES = {"preview": "mi_atlas_frozen_preview.py",
+               "geometry": "mi_atlas_frozen_geometry.py",
+               "mask": "mi_atlas_frozen_mask_adapter.py",
+               "mi": "mi_atlas_six_metrics.py"}
 MODS = ("rgb", "uv", "plv", "plh")
 DOMAINS = ("F", "P", "D", "O")
 RUNTIME_MODULES = {"preview": ("PIL", "numpy"),
@@ -169,6 +169,18 @@ def descriptor(path):
     return dict(path=str(Path(path).resolve()), sha256=sha(path))
 
 
+def stage_source(project_root, filename):
+    public_path = project_root / "tools" / filename
+    if public_path.is_file():
+        return public_path
+    archived_path = public_path.with_name(public_path.stem + "_20261025.py")
+    if archived_path.is_file():
+        return archived_path
+    if filename == STAGE_FILES["mi"] and project_root == ROOT:
+        return ROOT.parent / "mutual_information" / "estimator" / filename
+    return public_path
+
+
 def load_settings(config_path, project_root=ROOT):
     """No masks or batch folders are created until this exact-parity gate passes."""
     config_path = Path(config_path).resolve()
@@ -196,9 +208,9 @@ def load_settings(config_path, project_root=ROOT):
     if gate.get("status") != "complete" or gate.get("all11_exact") is not True or gate.get("case_count") != 11 or gate.get("preview_all11_exact") is not True or not {"geometry", "mask"}.issubset(gate.get("stage_types", [])):
         raise ValueError("Formal batch blocked: fresh preview + all11 geometry/mask exact parity required")
     project_root = Path(project_root).resolve()
-    if cohort.get("provenance", {}).get("builder_sha256") != sha(project_root / "tools/mi_atlas_cohort_20261025.py"):
+    if cohort.get("provenance", {}).get("builder_sha256") != sha(stage_source(project_root, "mi_atlas_cohort.py")):
         raise ValueError("Initial cohort builder source changed")
-    scripts = {key: project_root / "tools" / filename for key, filename in STAGE_FILES.items()}
+    scripts = {key: stage_source(project_root, filename) for key, filename in STAGE_FILES.items()}
     for key, report_key in (("preview", "preview_sha256"), ("geometry", "geometry_sha256"), ("mask", "adapter_sha256")):
         if not valid_sha(gate.get(report_key)) or sha(scripts[key]) != gate[report_key]:
             raise ValueError("Parity report does not bind current " + key + " source")

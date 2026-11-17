@@ -4,7 +4,7 @@ import hashlib
 import json
 import os
 from pathlib import Path
-from train_uv_ldm_clean_multigpu_20261016 import physical_gpu_uuids
+from train_multigpu_ldm import physical_gpu_uuids
 
 
 def main():

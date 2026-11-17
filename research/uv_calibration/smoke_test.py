@@ -16,7 +16,7 @@ from frozen_f_partition import REGION_NAMES, partition_frozen_f
 from metrics import ROI_ORDER, extract_objects, make_roi_domains, match_centres, spatial_metrics
 from pl_measure import cpu_regions
 from tools import uv_architecture_comparison_metrics_v10 as numeric
-from uv_three_region_eval_20261025 import measure
+from regional_image_metrics import measure
 
 
 def main():

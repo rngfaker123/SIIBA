@@ -6,7 +6,7 @@ from exactly 54 sealed results, then checks them against the runner summary.
 The source chain is verified through sealed case/feature records and hashes;
 large original image files are NOT re-read or reprocessed for this report.
 
-CLI: python tools/mi_atlas_report_20261025.py --batch-dir COMPLETE_BATCH
+CLI: python tools/mi_atlas_report.py --batch-dir COMPLETE_BATCH
          --output-dir NEW_REPORT_FOLDER
 An existing, byte-identical report is verified as a no-op; nothing is replaced.
 """

@@ -23,20 +23,20 @@ TOOLS = Path(__file__).resolve().parent
 VENDOR_SHA = 'de1c4d52ab781d3440b694afb0d9480eb0af1359a365aa5290ae0d750a31a0e9'
 CONNECTIONS_SHA = 'cc7171e44d0612db38720cb2fd2516c395992cdd7457efe341543be6f3c22d87'
 FROZEN_SHA = {
-    'porphyrin_company_adapter_20261021.py': 'b3a90168162d5224b79cc7682dc2749c0abad886db5d178aa7537941eca45783',
+    'porphyrin_company_adapter.py': 'b3a90168162d5224b79cc7682dc2749c0abad886db5d178aa7537941eca45783',
     # Public copy points to the supplied vendor module under /study/vendor.
-    'build_uv_three_masks_review_20261021.py': '44f21a26a36c41db67547a5789fc8ea2c89100b809dd7a319e280da061016a14',
-    'build_porphyrin_mediapipe_regions_20261021.py': 'a63c338527290341e700ef47ca6bf2a2735944f80adff7e0e7b8e625498f088b',
+    'build_uv_three_masks_review.py': '44f21a26a36c41db67547a5789fc8ea2c89100b809dd7a319e280da061016a14',
+    'build_porphyrin_mediapipe_regions.py': 'a63c338527290341e700ef47ca6bf2a2735944f80adff7e0e7b8e625498f088b',
     'uv_darkspot_anatomical_exclusions_v1.py': 'f79295f0689e5a0c282382496b40c25c4acd3c7bbbf8e41a79a53eb421027291',
     'uv_darkspot_module_v4.py': '91a6cfbf236fabaaff8ebc30c88d1333ca7f897c6377c20fc630c46d9856da4b',
     'uv_darkspot_refinement_v5.py': '51f968650f6214515613fe97dd15824c83ea26ee262a2de5ba5827b39fcaa4f8',
     'uv_darkspot_native_red_guard_v1.py': 'c81a7a82dfb3f40892ac5026cacb36993b905d27a1c716297207b382e10c8cb0',
-    'uv_spot_local_contrast_filter_20261024.py': 'a9a7d8f128eefa732c6da0b2934107eb42f2c98398ff3050859ee4a01386980c',
-    'uv_forehead_domain_20261024.py': '20e5b5687c7fd16b28843a98d756475f7ab685e1264066d4f914717964b36eaf',
+    'uv_spot_local_contrast_filter.py': 'a9a7d8f128eefa732c6da0b2934107eb42f2c98398ff3050859ee4a01386980c',
+    'uv_forehead_domain.py': '20e5b5687c7fd16b28843a98d756475f7ab685e1264066d4f914717964b36eaf',
     'uv_spots_company_v2.py': 'c05ff90e7363b739c48ec2e03d9ffa18ff458de693c57b55f6d6f94c4ffd9c20',
     'uv_darkspot_company_based_v1.py': 'c937a4f31cabc1518ca5ea2e8aadfba07bceda0df79280775283bcbb2dc2c11d',
-    'uv_spot_recovery_20261024.py': 'dee7a9ad91f9b49138247857fc1b6ed43536f106812d8fc0ac605649e9388bce',
-    'uv_porphyrin_priority_20261024.py': '2d0322b8d341db69829704af06c70b101a62099711bed61f6e03e65f86cf899f',
+    'uv_spot_recovery.py': 'dee7a9ad91f9b49138247857fc1b6ed43536f106812d8fc0ac605649e9388bce',
+    'uv_porphyrin_priority.py': '2d0322b8d341db69829704af06c70b101a62099711bed61f6e03e65f86cf899f',
 }
 
 
@@ -86,7 +86,7 @@ def geometry_from_landmarks(landmarks, shape_hw):
     """Rasterize original normalized landmarks; never resize an existing mask."""
     if cv2.__version__ != '4.11.0' or np.__version__ != '1.26.4':
         raise RuntimeError('Old-F rasterization requires geometry OpenCV 4.11.0 / NumPy 1.26.4')
-    funcs = _original_functions('build_porphyrin_mediapipe_regions_20261021.py',
+    funcs = _original_functions('build_porphyrin_mediapipe_regions.py',
                                 ['connection_sets', 'ordered_cycle', 'polygon_indices', 'make_region'])
     h, w = map(int, shape_hw)
     normalized = np.asarray(landmarks['normalized_xyz'], dtype=np.float64)
@@ -130,15 +130,15 @@ def build_masks(uv_bgr, landmarks, old_valid_native, *, vendor_path=None, raw_co
     if not isinstance(uv_bgr, np.ndarray) or uv_bgr.dtype != np.uint8 or uv_bgr.ndim != 3 or uv_bgr.shape[2] != 3:
         raise ValueError('Expected native uint8 BGR UV')
     cv2.setNumThreads(2)
-    from porphyrin_company_adapter_20261021 import load_vendor, detect_uv
+    from porphyrin_company_adapter import load_vendor, detect_uv
     from uv_darkspot_module_v4 import DarkSpotConfig, detect_uv_darkspots
     from uv_darkspot_refinement_v5 import RefinementConfig, refine_darkspots
     from uv_darkspot_native_red_guard_v1 import NativeRedGuardConfig, build_native_red_guard
-    from uv_spot_local_contrast_filter_20261024 import LocalContrastConfig, filter_local_spots
-    from uv_forehead_domain_20261024 import ForeheadDomainConfig, extend_forehead_domain
+    from uv_spot_local_contrast_filter import LocalContrastConfig, filter_local_spots
+    from uv_forehead_domain import ForeheadDomainConfig, extend_forehead_domain
     from uv_spots_company_v2 import UVSpotsConfig, detect_uv_spots
-    from uv_spot_recovery_20261024 import RecoveryConfig, recover_dark_proposals
-    from uv_porphyrin_priority_20261024 import company_p_support, enforce_porphyrin_priority
+    from uv_spot_recovery import RecoveryConfig, recover_dark_proposals
+    from uv_porphyrin_priority import company_p_support, enforce_porphyrin_priority
     from uv_darkspot_company_based_v1 import load_company_primitives
     from uv_darkspot_anatomical_exclusions_v1 import build_dark_exclusions
     # Both company callers must bind to the same immutable copy. The original
@@ -146,7 +146,7 @@ def build_masks(uv_bgr, landmarks, old_valid_native, *, vendor_path=None, raw_co
     _, _, primitive_source = load_company_primitives()
     if primitive_source['source_sha256'] != sha256(vendor):
         raise ValueError('Company primitive and point detector versions differ')
-    support = _original_functions('build_uv_three_masks_review_20261021.py', ['porphyrin_pixel_support'])['porphyrin_pixel_support']
+    support = _original_functions('build_uv_three_masks_review.py', ['porphyrin_pixel_support'])['porphyrin_pixel_support']
     started = time.monotonic()
     audit = {'stages': {}, 'company_source_sha256': VENDOR_SHA}
     def emit(name, array):

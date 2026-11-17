@@ -121,6 +121,10 @@
       "access": "public",
       "sha256": "5de9b71f1a60080d333bc330cd7e694a9a3153137936a96981e8f57a9a0411f3"
     },
+    "figure2/full_face_paired_mi.json": {
+      "access": "public",
+      "sha256": "04530d73e966ed9ce4809416e3db2dab127bb9bf965f96950c3280575c141cb3"
+    },
     "figure2/ita.csv": {
       "access": "public",
       "sha256": "6901b314dd12fdbb2c63377575cbaab69ae8dd8094ae2f4488193eef0b6f90a6"

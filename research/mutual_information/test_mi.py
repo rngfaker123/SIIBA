@@ -14,7 +14,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from estimator import mi_atlas_six_metrics_20261025 as runner
+from estimator import mi_atlas_six_metrics as runner
 import numpy as np
 from tools.mi_knn_estimator_v1 import dequantize_u8, ksg_mi
 

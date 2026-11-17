@@ -1,0 +1,23 @@
+{
+  "domain": "F",
+  "contrast": "MI(RGB,PLH) minus MI(RGB,UV)",
+  "unit": "paired acquisition",
+  "k": 5,
+  "pixels_per_acquisition_per_draw": 1000,
+  "pixel_seeds": [
+    20261025,
+    20261026,
+    20261027
+  ],
+  "n_acquisitions": 19651,
+  "n_positive": 19650,
+  "n_negative": 1,
+  "n_ties": 0,
+  "median_uv_bits": 1.3714774181020835,
+  "median_plh_bits": 2.665658054994019,
+  "median_paired_difference_bits": 1.2906737690920496,
+  "method": "two-sided exact sign test conditional on non-tied acquisitions",
+  "null": "P(paired difference > 0 | nonzero difference) = 0.5",
+  "log10_p": -5910.946008041765,
+  "p_scientific": "1.13237939e-5911"
+}

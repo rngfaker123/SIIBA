@@ -13,7 +13,7 @@ import mediapipe as mp
 import numpy as np
 from PIL import Image
 
-from build_porphyrin_mediapipe_regions_20261021 import (
+from build_porphyrin_mediapipe_regions import (
     detect_mapped, make_region, polygon_indices, MODEL_SHA,
 )
 
@@ -32,7 +32,7 @@ def create_detector(model_path):
     if sha256(model_path) != MODEL_SHA:
         raise ValueError('Frozen MediaPipe task file changed')
     root = Path(__file__).resolve().parents[1]
-    if sha256(Path(__file__).with_name('build_porphyrin_mediapipe_regions_20261021.py')) != 'a63c338527290341e700ef47ca6bf2a2735944f80adff7e0e7b8e625498f088b':
+    if sha256(Path(__file__).with_name('build_porphyrin_mediapipe_regions.py')) != 'a63c338527290341e700ef47ca6bf2a2735944f80adff7e0e7b8e625498f088b':
         raise ValueError('Original geometry functions changed')
     if sha256(root / 'assets/skin_mi_subject1000_v1/face_mesh_connections.py') != 'cc7171e44d0612db38720cb2fd2516c395992cdd7457efe341543be6f3c22d87':
         raise ValueError('Original landmark polygon definitions changed')

@@ -4,6 +4,8 @@ The four main figures use a shared model order and region palette. The plotting 
 
 ## Build
 
+To regenerate the study workflow displayed on the repository homepage, run `python figures/study_workflow.py` from the repository root. All its inputs are included here.
+
 Use Python 3.11–3.13 and the package versions in `requirements.txt`. Figure 1 also uses Chrome, Edge or Chromium and Poppler’s `pdftoppm`. Set `SIIBA_CHROME` and `SIIBA_PDFTOPPM` if the executables are outside the search path. The original figures use Arial.
 
 From the repository root, run:
@@ -20,7 +22,7 @@ The group input folder has subfolders `figure1/` through `figure4/`, with paths 
 | Figure | Panels and source |
 | --- | --- |
 | 1 | Cohort selection, paired capture, six skin-tone strata, valid regions and experimental design. The figure uses the annotated layout derived from the approved SVG. |
-| 2 | Regional mutual information, sensitivity to sampling and resolution, and six ITA strata. The five published CSVs contain the plotted estimates and sampling variability. |
+| 2 | Regional mutual information, sensitivity to sampling and resolution, and six ITA strata. Five CSVs contain the pooled estimates and sampling variability. The full-face paired sign test uses one RGB–UV and one RGB–PLH estimate per acquisition. See the [aggregate result](inputs/figure2/full_face_paired_mi.json) and [analysis code](../research/mutual_information/paired_capture_mi.py). |
 | 3 | Five models’ measured and predicted UV crops, regional L1, paired full-face L1, regional ICC(A,1), UV object performance and spatial-shift sensitivity. The case bundle contains one shared crop and six source-verified pixel arrays. |
 | 4 | Matched UV, uncertainty and error images, regional mean uncertainty, uncertainty–error correlations, retention risk, coverage and interval width. |
 

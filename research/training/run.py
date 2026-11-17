@@ -13,11 +13,11 @@ sys.path.insert(0, str(HERE.parent))
 from training import unetplus_two_rank, unetplus_three_rank
 
 TRAINERS = {
-    'single_unet': 'train_single_uv_uncertainty_clean_20261014',
-    'multi_unet': 'train_joint_uv_uncertainty_clean_20261014',
-    'unetplusplus': 'train_unetplusplus_uv_uncertainty_clean_20261015',
+    'single_unet': 'train_single_target_unet',
+    'multi_unet': 'train_multitarget_unet',
+    'unetplusplus': 'train_unetplusplus',
     'swin': 'swin_train',
-    'ldm': 'train_uv_ldm_clean_multigpu_20261016',
+    'ldm': 'train_multigpu_ldm',
     'sigma': 'ldm_sigma_train',
 }
 

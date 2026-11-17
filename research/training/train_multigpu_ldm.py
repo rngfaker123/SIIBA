@@ -36,13 +36,13 @@ STAGE_ASSIGNMENT = None
 EPOCH_BATCHES = 4791
 SOURCE_HASHES = {
     "training/train_uv_ldm_exp4_v1.py": "7211e6a50e1598cffe60364f77bca0a28b04d80d3292f0e9b7a0926e661a58be",
-    "training/configs/uv_ldm_exp4_20260927_v1.json": "83dc5b7c9f03d68ef44e300920802ec4298303bdab535bb4a1af5c0da633a5c6",
+    "training/configs/uv_ldm_reference.json": "83dc5b7c9f03d68ef44e300920802ec4298303bdab535bb4a1af5c0da633a5c6",
     "models/uv_latent_diffusion_v1.py": "7886f0612812f70b02eb53feabe70d85e50059cc0971dd3942b64fc1c52ffe4c",
     "training/train_uv_uncertainty_fullimage.py": "e8f983cd5c6fa73193eab0b1a4ebe58ef5d6897bf824d2d92c35e312418600fc",
     "models/highres_patch_dataset.py": "7dbe88f46b4599926ce57ef384f2aeaf0acf55b2e473895e9b73b9cbdd085af7",
     "models/matched_training_batching.py": "02c664b2375a84bead4c9f5b95a26021c2adb19bcb7042037e5f0a86695f2ac4",
 }
-CODE_FILES = ("training/train_uv_ldm_clean_multigpu_20261016.py", "models/uv_latent_diffusion_v1.py",
+CODE_FILES = ("training/train_multigpu_ldm.py", "models/uv_latent_diffusion_v1.py",
               "training/train_uv_uncertainty_fullimage.py", "models/highres_patch_dataset.py",
               "models/matched_training_batching.py")
 read_json, digest, save_json = ref.read_json, ref.digest, ref.save_json

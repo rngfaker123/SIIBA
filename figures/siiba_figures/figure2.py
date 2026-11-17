@@ -111,6 +111,15 @@ def build(output_dir):
     res = data['resolution']
     ita = data['ita']
     source_hashes = json.loads((INPUT / 'evidence/revision_audit.json').read_text(encoding='utf8'))['source_hashes']
+    paired_path = INPUT / 'full_face_paired_mi.json'
+    paired = json.loads(paired_path.read_text(encoding='utf8'))
+    source_hashes[paired_path.name] = sha(paired_path)
+    assert paired['domain'] == 'F' and paired['contrast'] == 'MI(RGB,PLH) minus MI(RGB,UV)'
+    assert {row['N_groups'] for row in data['main']} == {paired['n_acquisitions']}
+    assert sum(paired[key] for key in ('n_positive', 'n_negative', 'n_ties')) == paired['n_acquisitions']
+    log_p = paired['log10_p']
+    assert np.isfinite(log_p) and log_p <= 0
+    p_label = 'p < 0.001' if log_p < -3 else f'p = {10**log_p:.3f}'
     plt.rcParams.update({
         'font.family': FONT, 'font.size': 8, 'text.color': '#171717',
         'axes.labelcolor': '#171717', 'axes.edgecolor': '#333333',
@@ -174,9 +183,9 @@ def build(output_dir):
         pic.set_xlim(source_centre - 150, source_centre + 150)
         pic.set_ylim(374.5, -.5)
         pic.set_axis_off()
-    for cx, label in zip([195, 491, 790, 1091],
-                         ['Porphyrin', 'UV spots', 'Other skin', 'Full face']):
-        text(.10 + 4.62 * cx / 1280, 7.16, label, ha='center', va='top', fontsize=8.5)
+    for cx, domain in zip([195, 491, 790, 1091], DOMAINS):
+        text(.10 + 4.62 * cx / 1280, 7.16, REGION_NAMES[domain],
+             ha='center', va='top', fontsize=8.5, color=COLORS[domain], weight='semibold')
     text(2.43, 6.85, 'F = P ∪ D ∪ O', ha='center', va='center', fontsize=10,
          fontfamily='DejaVu Sans')
     ax = axes(5.32, 7.10, 2.98, 1.49)
@@ -209,6 +218,9 @@ def build(output_dir):
             assert np.allclose(segment[:, 1],
                                [row['mean'] - row['sample_SD'], row['mean'] + row['sample_SD']],
                                rtol=0, atol=1e-14)
+
+    text(6.81, 6.64, f'Within-capture MI (F) · RGB–UV vs RGB–PLH · {p_label}',
+         ha='center', va='center', fontsize=8)
 
     heading('b', 'Mutual-information stability', 6.43)
     region_legend(6.34)
@@ -270,13 +282,15 @@ def build(output_dir):
             if row_index == 0:
                 text(x + tile_side / 2, 3.12, ['Native', '1/2', '1/4', '1/8'][factor_index],
                      ha='center', va='center', fontsize=8)
-                fig.add_artist(Line2D([(x + tile_side / 2) / W], [2.28 / H],
+                fig.add_artist(Line2D([(x + tile_side / 2) / W], [2.32 / H],
                     transform=fig.transFigure, marker='o', ms=4,
                     mfc=FACTOR_COLORS[factor_index], mec='#344A60', mew=.5, ls=''))
+                text(x + tile_side / 2, 2.20, str(tile.width),
+                     ha='center', va='center', fontsize=8)
         text(tile_left - .04, 2.73 + tile_side / 2 - row_index * (tile_side + tile_gap),
              modality, ha='right', va='center', fontsize=8)
-    text(1.08, 3.28, 'Relative resolution', ha='center', va='center', fontsize=8)
-    text(1.08, 2.10, 'Matched skin patch', ha='center', va='center', fontsize=8)
+    text(1.08, 3.28, 'Scale of each image axis', ha='center', va='center', fontsize=8)
+    text(1.08, 2.055, 'Pixels per patch side', ha='center', va='center', fontsize=8)
     for column, target in enumerate(TARGETS):
         ax = axes([2.15, 4.25, 6.35][column], 2.35, 1.95, .79)
         ax.spines['left'].set_visible(False)
@@ -312,11 +326,12 @@ def build(output_dir):
 
     heading('d', 'MI across skin-tone strata', 1.91)
     region_legend(1.82)
-    tone_labels = ['VL', 'L', 'I', 'T', 'B', 'Dk']
+    tone_labels = ['Very light', 'Light', 'Intermediate', 'Tan', 'Brown', 'Dark']
     for column, target in enumerate(TARGETS):
-        ax = axes(lefts[column], .43, width, .95)
+        ax = axes(lefts[column], .56, width, .82)
         ax.set_xlim(-.18, 5.18)
-        ax.set_xticks(np.arange(6), tone_labels)
+        ax.set_xticks(np.arange(6), tone_labels, rotation=32, ha='right',
+                      rotation_mode='anchor')
         ax.tick_params(axis='x', labelsize=8, pad=3)
         if target == 'uv':
             ax.set_ylim(.25, 1.31)
@@ -338,9 +353,6 @@ def build(output_dir):
                     color=COLORS[domain], ls=style['ls'], lw=style['lw'], zorder=3)
             ax.plot(np.arange(6), [r['mean_bits'] for r in rows],
                     **{**style, 'ls': 'none'}, zorder=6 if domain == 'F' else 5)
-
-    text(4.43, .11, 'VL Very light   L Light   I Intermediate   T Tan   B Brown   Dk Dark',
-         ha='center', va='center', fontsize=8)
 
     for extension in ['png', 'svg', 'pdf']:
         fig.savefig(OUT / f'Figure2.{extension}', dpi=400)
@@ -365,23 +377,29 @@ def build(output_dir):
     for name in ['main', 'fraction', 'k', 'resolution', 'ita']:
         filename = name + '_plotted.csv'
         assert (OUT / 'Figure2_source_data' / filename).read_bytes() == (previous / (name + '.csv')).read_bytes(), filename
+    (OUT / 'Figure2_source_data' / paired_path.name).write_bytes(paired_path.read_bytes())
     caption_en = (
         'Figure 2. Regional mutual information between RGB and UV, PLH and PLV. '
         '(a) The illustration defines the full valid facial domain (F), porphyrin-signal region (P), '
-        'UV-spot region (D) and other valid skin (O). The bars compare mutual information (MI) in all four domains. '
+        'UV-spot region (D) and other valid skin (O). Bars show mutual information (MI) estimated from pixels pooled across acquisitions. '
+        f'The separate full-face comparison used a two-sided exact paired sign test. Each of the {paired["n_acquisitions"]:,} acquisitions '
+        'contributed one RGB–UV and one RGB–PLH MI estimate, each averaged over three draws of 1,000 matched full-face pixels. '
         '(b) Stability of MI estimates as the percentage of eligible test records and the number of nearest neighbours '
         'in the MI estimator vary. (c) Paired RGB and UV crops show the same skin patch at native resolution and '
         'at one-half, one-quarter and one-eighth of the native resolution along each image axis. '
+        'The same square patch thus spans 96, 48, 24 and 12 pixels per side, respectively. '
         'The corresponding dot shades identify these four resolutions in the MI plots. '
         '(d) Regional MI across six ITA skin-tone strata. Values are means of three pixel-sampling draws; '
         'error bars show one sample standard deviation across these draws.'
     )
     caption_cn = (
         '图2 RGB与UV、PLH和PLV的区域互信息。'
-        '（a）示意全脸有效区域（F）、卟啉区（P）、UV斑区（D）及其余有效皮肤（O）；柱图比较四个区域中的互信息。'
+        '（a）示意全脸有效区域（F）、卟啉区（P）、UV斑区（D）及其余有效皮肤（O）。柱高为合并各次采集的像素后估计的互信息。'
+        f'全脸配对比较采用双侧精确符号检验。在{paired["n_acquisitions"]:,}次采集中，每次分别计算RGB–UV和RGB–PLH的互信息，'
+        '各取三轮抽样的均值，每轮使用全脸同一位置的1,000个配对像素。'
         '（b）改变符合条件的测试记录抽取比例及互信息估计中的近邻数，检验估计的稳定性。'
         '（c）配对RGB与UV局部图展示同一皮肤区域在原始分辨率及每个图像轴缩至原始的1/2、1/4、1/8后的细节。'
-        '下方圆点与右侧互信息图中的圆点深浅对应四种分辨率。'
+        '同一块正方形皮肤区域的边长依次为96、48、24和12像素；下方圆点的深浅对应右侧互信息图中的四种分辨率。'
         '（d）六个ITA肤色层级内的区域互信息。数值为三次像素抽样的均值，误差线表示这三次抽样的一个样本标准差。'
     )
     (OUT / 'Figure2_caption_EN.txt').write_text(caption_en + '\n', encoding='utf8')
@@ -389,7 +407,7 @@ def build(output_dir):
     (OUT / 'Figure2_source_data' / 'revision_audit.json').write_text(json.dumps({
         'source_hashes': source_hashes,
         'plotted_data_identical_to_previous': True,
-        'p_values': 'Not available in accepted results. Three pixel-sampling draws are not independent capture replicates.',
+        'paired_full_face_test': paired,
         'relative_resolution_definition': 'Image width and height divided by 1, 2, 4 or 8 before crop extraction.',
         'region_order': DOMAINS, 'region_colors': COLORS,
     }, indent=2), encoding='utf8')

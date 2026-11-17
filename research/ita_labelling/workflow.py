@@ -25,8 +25,18 @@ TEST_COUNT = 21899
 STRATA = ('very_light', 'light', 'intermediate', 'tan', 'brown', 'dark', 'unclassified')
 TECHNICAL = {'ValueError: Expected exactly one face; no mask fabricated': 'no_unique_face',
              'ValueError: Nonfinite or out-of-image polygon vertex: no automatic clipping': 'invalid_geometry'}
-SOURCES = ('workflow.py', 'uv_rgb_ita_full_f_20261025.py', 'uv_rgb_ita_20261025.py',
-           'uv_ita_native_f_replay_20261025.py')
+SOURCES = {
+    'workflow.py': 'workflow.py',
+    'full_face_skin_tone.py': 'uv_rgb_ita_full_f_20261025.py',
+    'rgb_skin_tone.py': 'uv_rgb_ita_20261025.py',
+    'replay_native_face_mask.py': 'uv_ita_native_f_replay_20261025.py',
+}
+
+
+def source_file(folder, name):
+    public_path = folder / name
+    return public_path if public_path.is_file() else folder / SOURCES[name]
+
 CPU = [60, 61, 62, 63]
 
 
@@ -157,7 +167,7 @@ def configure(args):
         'original_launch_request': desc(root / 'evidence/launch_request.json'),
         'original_batch_contract': desc(old['output'] / 'batch_contract.json'),
         'frozen_config': desc(args.frozen_config), 'batch_module': desc(args.batch_module),
-        'sources': {name: desc(source / name) for name in SOURCES},
+        'sources': {path.name: desc(path) for path in (source_file(source, name) for name in SOURCES)},
         'frozen_tools': str(args.batch_module.resolve().parent),
         'stages': {name: desc(old['scripts'][name]) for name in ('preview', 'geometry')},
         'model': desc(old['files']['model']), 'runtimes': old['runtimes'],
@@ -298,7 +308,7 @@ def produce(out, p, catalog, index, *, force_fresh=False, destination=None, prev
     case.mkdir(parents=True)
     mask_path, original = mask_record(p, catalog, index)
     source = out / 'source'
-    script = source / 'uv_ita_native_f_replay_20261025.py'
+    script = source_file(source, 'replay_native_face_mask.py')
     base = {'schema': 'ita_full_f_fasttrack_label_v1', 'index': index,
             'sample_id': row['sample_id'], 'subject_id': row['subject_id'],
             'source_row_sha256': digest(row), 'protocol_sha256': protocol_sha,
@@ -362,8 +372,9 @@ def produce(out, p, catalog, index, *, force_fresh=False, destination=None, prev
 
 def color(args):
     """Numerical child only: unchanged native Lab estimator in original runtime."""
-    sys.path.insert(0, str(args.out / 'source'))
-    import uv_rgb_ita_full_f_20261025 as m
+    folder = args.out / 'source'
+    sys.path.insert(0, str(folder))
+    m = load(source_file(folder, 'full_face_skin_tone.py'), '_ita_full_face')
     import numpy as np
     import PIL
     from PIL import Image, ImageCms
