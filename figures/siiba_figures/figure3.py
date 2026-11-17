@@ -8,8 +8,10 @@ import re
 import matplotlib
 matplotlib.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib.backends.backend_pdf import PdfPages
 from matplotlib.lines import Line2D
 from matplotlib.ticker import FormatStrFormatter
+from matplotlib.transforms import Bbox
 import numpy as np
 import pandas as pd
 from PIL import Image
@@ -200,6 +202,8 @@ def _build(output_dir):
             ax.set_ylabel('L1 error',labelpad=3)
 
     section_offset += .21 + slanted_tick_space
+    # Split in the blank space between panels c and d at the same native scale.
+    page_break_y = section_offset + 4.44
     heading(4.59,'d','Agreement in regional mean colour intensity')
     legend(4.96,MODEL_NAMES,['#50585E']*5,MODEL_MARKERS,x=.36,marker_size=8.5)
     areas=['Forehead','Image-left cheek','Image-right cheek','Nose','Chin','Full valid face (F)']
@@ -329,6 +333,10 @@ def _build(output_dir):
 
     for suffix in ['pdf','svg','png']:
         fig.savefig(OUT/('Figure3.'+suffix),dpi=350)
+    with PdfPages(OUT/'Figure3_two_pages.pdf') as pages:
+        for bottom, top in [(H-page_break_y, H), (0, H-page_break_y)]:
+            pages.savefig(fig, bbox_inches=Bbox.from_extents(0, bottom, W, top),
+                          pad_inches=0)
     plt.close(fig)
     with Image.open(OUT/'Figure3.png') as im:
         im.thumbnail((1800,2668),Image.Resampling.LANCZOS)
@@ -337,11 +345,25 @@ def _build(output_dir):
     provenance['polarized_crops'] = pl_info
     (OUT/'Figure3_ROI_provenance.json').write_text(json.dumps(provenance,ensure_ascii=False,indent=2),encoding='utf8')
 
-    caption_en='''Figure 3. Reconstruction from RGB across image, anatomical and UV-signal measurements. (a) Rows show UV, PLH and PLV from one held-out capture. The ground truth column shows the measured target and the next five columns show reconstructions from its paired RGB image. All images in (a) use the same nasal crop and display range. (b) Regional mean absolute reconstruction error (L1) for UV, parallel-polarized light (PLH) and cross-polarized light (PLV). Error bars show one between-capture standard deviation. The region labels are P (Porphyrin), D (UV spots), O (Other) and F (Full face). Other denotes valid facial skin outside P and D. (c) Full-face L1 on matched captures. UV and PL bars show the two reconstruction errors; the grey segment shows the paired reduction from UV to the polarized target. (d) Absolute-agreement ICC(A,1) between measured and reconstructed regional mean red, green and blue intensities. Symbols identify models, and horizontal segments connect the lowest and highest model estimates in each anatomical region. Slight vertical offsets separate overlapping symbols. (e) UV object-count and area agreement and local detection. Count MAE measures the absolute difference in object count; count ICC measures count agreement. Area MAE measures the error in occupied area fraction, in percentage points (pp); area ICC measures area-fraction agreement. Local AUROC and PR-AUC assess the detection of signal presence in local windows. (f) Mask Dice, object precision, recall and F1, matched-centroid error, and the number of captures with matched objects, using a 5-pixel centroid tolerance. k denotes thousands of captures. (g) Relative change in regional L1 after shifting the predicted UV image by the indicated displacement, without added blur. A dash marks an unavailable estimate for that panel.'''
-    caption_cn='''图3　从图像、解剖区域和UV信号三个尺度评价RGB重建。（a）三行依次为同一测试样本的 UV、PLH 和 PLV。Ground truth 列为各模态的实测图像，右侧五列为五个模型从配对 RGB 图像得到的重建。所有图像均使用相同的鼻部裁剪坐标和显示范围。（b）UV、PLH和PLV各区域的平均绝对重建误差L1，误差线表示记录间的一个标准差。图例中 P（Porphyrin）为卟啉信号区，D（UV spots）为 UV 斑区，O（Other）为 P、D 以外的有效皮肤，F（Full face）为全脸有效区域。（c）在配对记录上比较全脸L1。UV和PL柱表示各自重建误差，灰色区段表示UV相对于对应偏振模态的配对误差差值。（d）实测与重建图像中各解剖区域平均红、绿、蓝通道强度的绝对一致性ICC(A,1)。不同符号表示模型，水平线连接该区域模型估计的最小值与最大值；轻微纵向错位用于分开重叠符号。（e）UV对象数量、面积及局部存在检测。Count MAE表示对象计数的平均绝对误差，Count ICC表示计数一致性；Area MAE表示面积占比误差，单位为百分点，Area ICC表示面积占比一致性；Local AUROC与PR-AUC评价局部窗口内是否存在目标信号。（f）在质心距离容限为5像素时，评价掩膜Dice、对象匹配精确率、召回率、F1、匹配对象中心误差和存在匹配对象的记录数，k表示千条记录。（g）在不额外模糊的条件下，移动预测UV图像后各区域L1的相对变化。横线表示该子图缺少已验收估计值。'''
+    caption_en='''Figure 3. Accuracy of UV and polarized image reconstruction from RGB.
+(a) Matched nasal crops from one held-out capture. Rows show UV-excited fluorescence (UV), parallel-polarized light (PLH) and cross-polarized light (PLV). The first column shows the measured target (Ground truth). The next five columns show reconstructions from the same RGB image by Single-target U-Net, Multi-target U-Net, U-Net++, Swin Transformer and Latent diffusion model, respectively.
+(b) Regional reconstruction error for each model and target modality. Points show mean absolute error (L1) between reconstructed and measured images. Error bars show one standard deviation across captures. P denotes the porphyrin-signal region, D the UV-spot region, O the remaining valid skin and F the full valid face.
+(c) Full-face L1 for UV versus PLH (left) and UV versus PLV (right). For each model, the grey segment shows the mean paired difference in L1, calculated as UV minus the corresponding polarized target.
+(d) Agreement between reconstructed and measured mean red, green and blue intensities in each anatomical region and across the full face. Values of the absolute-agreement intraclass correlation coefficient, ICC(A,1), closer to 1 indicate greater agreement. Symbols identify the models. Each horizontal line spans the lowest to highest model estimate for that region.
+(e) Porphyrin and UV-spot counts, area fractions and local detection. Mean absolute error (MAE) and ICC quantify error and agreement in counts and area fractions. Area-fraction MAE is expressed in percentage points. AUROC and PR-AUC assess detection of signal presence in 64 × 64-pixel windows.
+(f) Spatial agreement of reconstructed and measured UV signals. Dice measures overlap of the signal masks. Individual objects are matched within a 5-pixel centroid tolerance. The plots report precision, recall, F1, distance between matched centroids and the number of captures with at least one match (in thousands).
+(g) The reconstructed UV image was shifted by 0, 1, 2, 3 or 5 pixels while the measured UV image and region masks were held fixed. Curves show the percentage change in mean L1 within P, D and O relative to the unshifted reconstruction.'''
+    caption_cn='''图 3　从 RGB 重建 UV 和偏振图像的准确性。
+（a）比较同一受试者鼻部的实测图像与重建图像。三行依次为紫外激发荧光（UV）、平行偏振光（PLH）和交叉偏振光（PLV）。第一列为实测图像（Ground truth），右侧五列依次为 Single-target U-Net、Multi-target U-Net、U-Net++、Swin Transformer 和 Latent diffusion model 从同一张 RGB 图像得到的重建结果。
+（b）各模型在三种目标模态上的区域重建误差。点表示重建与实测图像之间的平均绝对误差（L1），误差线表示采集记录间的一个标准差。P 为卟啉信号区，D 为 UV 斑区，O 为其余有效皮肤，F 为全脸有效区域。
+（c）比较同一模型重建 UV 和偏振图像时的全脸 L1 误差。左图比较 UV 与 PLH，右图比较 UV 与 PLV。对每次采集，用 UV 误差减去相应的偏振图像误差。灰色区段表示该差值的平均值。
+（d）比较重建图像与实测图像在各面部区域及全脸的平均红、绿、蓝通道强度。横轴为绝对一致性组内相关系数 ICC(A,1)，越接近 1 表示一致性越高。符号代表模型，水平线连接同一区域内各模型的最低值和最高值。
+（e）比较卟啉信号和 UV 斑的数量、面积占比及局部检出表现。数量和面积占比均用平均绝对误差（MAE）及 ICC 评价，面积占比误差以百分点计。AUROC 和 PR-AUC 衡量模型辨别 64 × 64 像素局部区域内有无相应信号的能力。
+（f）比较重建与实测 UV 图像中信号的位置。Dice 衡量信号掩膜的重叠程度。以 5 像素为质心距离容限匹配单个信号，报告精确率、召回率、F1、匹配后的质心距离，以及至少有一个匹配信号的采集记录数（单位为千）。
+（g）固定实测 UV 图像和区域掩膜，将重建 UV 图像平移 0、1、2、3 或 5 像素。曲线表示 P、D、O 三区的平均 L1 误差相对于未平移时的变化百分比。'''
     (OUT/'Figure3_caption_EN.txt').write_text(caption_en,encoding='utf8')
     (OUT/'Figure3_caption_CN.txt').write_text(caption_cn,encoding='utf8')
-    return {name: OUT/name for name in ['Figure3.pdf','Figure3.svg','Figure3.png','Figure3_preview.png']}
+    return {name: OUT/name for name in ['Figure3.pdf','Figure3_two_pages.pdf','Figure3.svg','Figure3.png','Figure3_preview.png']}
 
 
 def build(output_dir):

@@ -1,0 +1,36 @@
+\begin{figure*}[!tp]
+\ifdefined\RawFloats\RawFloats\fi
+\begin{minipage}[t][\textheight][t]{\textwidth}
+\setlength{\abovecaptionskip}{3pt}
+\centering
+\includegraphics[page=1,width=.82\textwidth]{figures/fig3.pdf}\par
+\caption{Accuracy of UV and polarized image reconstruction from RGB.
+\textbf{(a)} Comparison of measured and reconstructed nasal crops from the same individual. Rows show UV-excited fluorescence (UV), parallel-polarized light (PLH) and cross-polarized light (PLV). The first column shows the measured images (Ground truth). The next five columns show reconstructions from the same RGB image by Single-target U-Net, Multi-target U-Net, U-Net++, Swin Transformer and Latent diffusion model, respectively.
+\textbf{(b)} Regional reconstruction error for each model and target modality. Points show the mean absolute error (L1) between reconstructed and measured images. Error bars show one standard deviation across captures. $P$ denotes the porphyrin-signal region, $D$ the UV-spot region, $O$ the remaining valid skin and $F$ the full valid facial domain.
+\textbf{(c)} Comparison of full-face L1 error between UV and polarized image reconstruction for each model. The left and right plots compare UV with PLH and PLV, respectively. For each capture, the error for the polarized target is subtracted from the UV error. Grey segments show the mean of these paired differences.
+}
+
+\label{fig:reconstruction}
+\end{minipage}
+\end{figure*}
+
+\begin{figure*}[!tp]
+\ifdefined\RawFloats\RawFloats\fi
+\begin{minipage}[t][\textheight][t]{\textwidth}
+\setlength{\abovecaptionskip}{3pt}
+\centering
+\includegraphics[page=2,width=.82\textwidth]{figures/fig3.pdf}\par
+\renewcommand{\thefigure}{\ref*{fig:reconstruction}}
+\renewcommand{\theHfigure}{reconstruction.continued}
+\caption{Accuracy of UV and polarized image reconstruction from RGB (continued).
+\textbf{(d)} Agreement between reconstructed and measured mean red, green and blue channel intensities within each anatomical region and across the full face. The horizontal axis shows the absolute-agreement intraclass correlation coefficient, ICC(A,1), with values closer to 1 indicating greater agreement. Symbols identify the models. Horizontal lines connect the lowest and highest model estimates within each region.
+\textbf{(e)} Comparison of porphyrin and UV-spot counts, area fractions and local detection. Mean absolute error (MAE) and ICC assess errors and agreement in counts and area fractions. Area-fraction errors are expressed in percentage points. AUROC and PR-AUC assess the ability to identify the presence of the corresponding signal within $64 \times 64$-pixel windows.
+\textbf{(f)} Spatial agreement between reconstructed and measured UV signals. Dice measures the overlap of signal masks. Individual signals are matched using a 5-pixel centroid-distance tolerance. The plots report precision, recall, F1, the distance between matched centroids and the number of captures with at least one matched signal (in thousands).
+\textbf{(g)} The reconstructed UV image is shifted by 0, 1, 2, 3 or 5 pixels while the measured UV image and region masks are held fixed. Curves show the percentage change in mean L1 error within $P$, $D$ and $O$ relative to the unshifted reconstruction.}
+\addtocounter{figure}{-1}
+\end{minipage}
+\end{figure*}
+
+
+
+

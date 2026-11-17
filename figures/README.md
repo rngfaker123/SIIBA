@@ -17,6 +17,8 @@ python figures/render_figures.py --private-inputs /path/to/private_inputs --outp
 
 The group input folder has subfolders `figure1/` through `figure4/`, with paths listed as `group` in the manifest. It contains clinical image examples and internal audit metadata. The Figure 1 preview on the homepage includes eye masking in all photographs. For a single figure add `--figures 3`. To verify all published inputs on a standalone checkout, run `python figures/render_figures.py --check-public`.
 
+Figure 3 also produces `Figure3_two_pages.pdf`, with panels a–c on page 1 and d–g on page 2 at the same native scale. For the manuscript, save this PDF as `figures/fig3.pdf` and use [fig3.tex](fig3.tex). The template includes both pages at the same width and assigns the corresponding caption to each page.
+
 ## Data represented
 
 | Figure | Panels and source |
