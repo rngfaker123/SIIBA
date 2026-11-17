@@ -13,7 +13,9 @@
 
 Paired measurements let us ask where RGB shares information with the other modalities, whether that pattern holds across skin tones, and which signals a reconstruction preserves. The study uses 76,642 acquisitions for training, 10,948 for validation and 21,899 for testing. The number eligible for each analysis depends on facial geometry and the number of valid pixels in each region.
 
-![SIIBA workflow showing paired four-modality imaging, regional mutual information, skin-tone stratification, RGB reconstruction and UV uncertainty](assets/study-workflow.png)
+[![Figure 1 from the manuscript showing cohort selection, the four imaging modalities, skin-tone strata, facial regions and experimental design](assets/figure1.png)](assets/figure1.png)
+
+**Figure 1. Study cohort, facial regions and experimental design.**
 
 ## 🔬 Experiments
 
@@ -50,4 +52,4 @@ The training guide includes a synthetic forward pass for each architecture and a
 
 ## 🔑 Data and model access
 
-This repository includes the study code, model configurations, aggregate plotting data and synthetic checks. Clinical images, participant-level manifests and model checkpoints are held separately. Full-cohort replay requires the original study manifests, masks, protocols and licensed detector inputs. Rendering a panel with a clinical example also requires the corresponding image from the study collection. [Training input requirements](research/training/README.md) · [Figure input manifest](figures/input_manifest.json)
+This repository includes the study code, model configurations, aggregate plotting data and synthetic checks. Source clinical images, participant-level manifests and model checkpoints are held separately. Full-cohort replay requires the original study manifests, masks, protocols and licensed detector inputs. Rendering a panel with a clinical example also requires the corresponding image from the study collection. [Training input requirements](research/training/README.md) · [Figure input manifest](figures/input_manifest.json)

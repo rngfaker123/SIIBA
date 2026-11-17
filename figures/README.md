@@ -4,7 +4,7 @@ The four main figures use a shared model order and region palette. The plotting 
 
 ## Build
 
-To regenerate the study workflow displayed on the repository homepage, run `python figures/study_workflow.py` from the repository root. All its inputs are included here.
+The repository homepage displays the manuscript version of [Figure 1](../assets/figure1.png). To regenerate it, use the figure command below with `--figures 1` and the group inputs. The separate [workflow schematic](../assets/study-workflow.png) can be regenerated with `python figures/study_workflow.py` using the inputs in this repository.
 
 Use Python 3.11–3.13 and the package versions in `requirements.txt`. Figure 1 also uses Chrome, Edge or Chromium and Poppler’s `pdftoppm`. Set `SIIBA_CHROME` and `SIIBA_PDFTOPPM` if the executables are outside the search path. The original figures use Arial.
 
@@ -15,7 +15,7 @@ python -m pip install -r figures/requirements.txt
 python figures/render_figures.py --private-inputs /path/to/private_inputs --output /path/to/review_outputs
 ```
 
-The group input folder has subfolders `figure1/` through `figure4/`, with paths listed as `group` in the manifest. It contains clinical image examples and internal audit metadata. Generated figures that include these photographs belong in the group's review directory. For a single figure add `--figures 3`. To verify all published inputs on a standalone checkout, run `python figures/render_figures.py --check-public`.
+The group input folder has subfolders `figure1/` through `figure4/`, with paths listed as `group` in the manifest. It contains clinical image examples and internal audit metadata. The Figure 1 preview on the homepage includes eye masking in all photographs. For a single figure add `--figures 3`. To verify all published inputs on a standalone checkout, run `python figures/render_figures.py --check-public`.
 
 ## Data represented
 
