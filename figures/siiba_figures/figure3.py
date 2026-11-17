@@ -1,4 +1,4 @@
-"""Render Figure 3 from accepted tables and one saved five-model UV example."""
+"""Render Figure 3 from accepted tables and matched UV, PLH and PLV crops."""
 from pathlib import Path
 from .input_paths import INPUT_ROOT
 import hashlib
@@ -61,18 +61,20 @@ def _build(output_dir):
         'xtick.major.size':2.5,'ytick.major.size':2.5,'axes.spines.top':False,
         'axes.spines.right':False,'pdf.fonttype':42,'svg.fonttype':'none',
         'savefig.facecolor':'white'})
-    W, H = 8.5, 12.6
+    row_step = .85
+    W, H = 8.5, 12.6 + 2 * row_step
     fig = plt.figure(figsize=(W,H),facecolor='white')
+    section_offset = 0.
 
     def text(x,y,s,**kw):
-        return fig.text(x/W,1-y/H,s,va='center',**kw)
+        return fig.text(x/W,1-(section_offset+y)/H,s,va='center',**kw)
 
     def heading(y,letter,s):
         text(.10,y,letter,fontsize=14,weight='bold')
         text(.37,y,s,fontsize=11,weight='bold')
 
     def axis(x,top,w,h,grid='y'):
-        ax = fig.add_axes([x/W,1-(top+h)/H,w/W,h/H])
+        ax = fig.add_axes([x/W,1-(section_offset+top+h)/H,w/W,h/H])
         ax.tick_params(pad=2,labelsize=8)
         ax.set_axisbelow(True)
         if grid:
@@ -88,7 +90,7 @@ def _build(output_dir):
             hollow = edge_white and i==3
             handles.append(Line2D([],[],ls='none',marker=marker,ms=4.5,color=color,
                 markerfacecolor='white' if hollow else color,markeredgewidth=.9,label=label))
-        fig.legend(handles=handles,loc='center left',bbox_to_anchor=(x/W,1-y/H),
+        fig.legend(handles=handles,loc='center left',bbox_to_anchor=(x/W,1-(section_offset+y)/H),
             ncol=ncol or len(labels),frameon=False,fontsize=size,handletextpad=.4,
             columnspacing=1.35,handlelength=1.05,borderaxespad=0)
 
@@ -96,7 +98,7 @@ def _build(output_dir):
         ax.text(j,.05,'—',transform=ax.get_xaxis_transform(),ha='center',fontsize=8)
 
     # Fixed, audited ROI.
-    heading(.16,'a','Measured and reconstructed UV in the same skin region')
+    heading(.16,'a','Reconstruction of UV, PLH and PLV in the same nasal region')
     provenance = json.loads((INPUT/'ROI_provenance.json').read_text(encoding='utf8'))
     assert provenance['independent_audit']['status']=='passed'
     with np.load(INPUT/provenance['roi_file'],allow_pickle=False) as bundle:
@@ -105,15 +107,31 @@ def _build(output_dir):
         assert arr.shape == tuple(provenance['crop_shape'])
         assert str(arr.dtype) == provenance['dtype']
         assert hashlib.sha256(arr.tobytes(order='C')).hexdigest() == provenance['array_sha256'][name]
-    images = [roi['truth'],*[roi['prediction_'+k] for k in KEYS]]
-    for i,(arr,label) in enumerate(zip(images,['Measured UV',*MODELS])):
-        x = .42+i*1.34
-        text(x+.58,.45,label,ha='center',fontsize=8.5,weight='bold' if i==0 else 'normal')
-        ax=axis(x,.57,1.16,.834,grid=None)
-        ax.imshow(arr.transpose(1,2,0),interpolation='nearest',vmin=0,vmax=1)
-        ax.set_axis_off()
+    columns = ['truth', *['prediction_' + key for key in KEYS]]
+    images = {('UV', name): arr for name, arr in roi.items()}
+    pl_info = json.loads((INPUT/'polarized_roi_provenance.json').read_text(encoding='utf8'))
+    assert pl_info['case_index'] == provenance['case_index'] and pl_info['crop_xyxy'] == provenance['crop_xyxy']
+    with np.load(INPUT/'polarized_roi.npz', allow_pickle=False) as bundle:
+        assert set(bundle.files) == {target + '_' + name for target in ('plh','plv') for name in columns}
+        for key in bundle.files:
+            modality, name = key.split('_', 1)
+            arr = bundle[key]
+            assert arr.shape == tuple(provenance['crop_shape']) and arr.dtype == np.float32
+            assert np.isfinite(arr).all() and arr.min() >= 0 and arr.max() <= 1
+            assert hashlib.sha256(arr.tobytes(order='C')).hexdigest() == pl_info['array_sha256'][key]
+            images[modality.upper(), name] = arr
+    for j,label in enumerate(['Ground truth',*MODELS]):
+        text(1.19+j*1.31,.45,label,ha='center',fontsize=8.5,weight='bold' if j==0 else 'normal')
+    for i,target in enumerate(TARGETS):
+        top = .58 + i * row_step
+        text(.30,top+.395,target,ha='center',fontsize=9,weight='bold')
+        for j,name in enumerate(columns):
+            ax = axis(.64+j*1.31,top,1.10,.79,grid=None)
+            ax.imshow(images[target, name].transpose(1,2,0),interpolation='nearest')
+            ax.set_axis_off()
 
-    heading(1.60,'b','Regional reconstruction error')
+    section_offset = 2 * row_step
+    heading(1.60,'b','Regional reconstruction error for UV, PLH and PLV')
     legend(1.83,REGION_NAMES,COLORS,MARKERS,x=3.07,edge_white=True)
     for ti,target in enumerate(TARGETS):
         ax=axis(.60+ti*2.63,2.08,2.25,.68)
@@ -135,7 +153,7 @@ def _build(output_dir):
         if ti==0:
             ax.set_ylabel('L1 error',labelpad=3)
 
-    heading(3.17,'c','Full-face error compared with UV reconstruction')
+    heading(3.17,'c','Full-face reconstruction error for PLH and PLV compared with UV')
     legend(3.40,['UV','UV − PL','PLH','PLV'],[TARGET_COLORS[0],'#CED4D8',*TARGET_COLORS[1:]],['s']*4,x=4.65)
     for ti,target in enumerate(TARGETS[1:]):
         ax=axis(.60+ti*4.02,3.64,3.63,.56)
@@ -269,10 +287,11 @@ def _build(output_dir):
         im.thumbnail((1800,2668),Image.Resampling.LANCZOS)
         im.save(OUT/'Figure3_preview.png')
     provenance['numeric_counts']={'3A_L1':52,'full_face_paired_differences':8,'3B_ICC':234,'3C':60,'3D':60,'spatial_shift':75}
+    provenance['polarized_crops'] = pl_info
     (OUT/'Figure3_ROI_provenance.json').write_text(json.dumps(provenance,ensure_ascii=False,indent=2),encoding='utf8')
 
-    caption_en='''Figure 3. Reconstruction from RGB across image, anatomical and UV-signal measurements. The five models are single-target U-Net (Single U-Net), multi-target U-Net (Multi U-Net), U-Net++, Swin Transformer (Swin) and latent diffusion model (LDM). (a) The same nasal region in measured UV and the five saved model outputs for one held-out evaluation capture. Every image uses the same crop and intensity display range. (b) Regional mean absolute reconstruction error (L1) for UV, PLH and PLV. Error bars show one between-capture standard deviation. P, porphyrin-signal region; D, UV-spot region; O, other valid skin; F, full valid face. (c) Full-face L1 on matched captures. UV and PL bars show the two reconstruction errors; the grey segment shows the paired reduction from UV to the polarized target. (d) Absolute-agreement ICC(A,1) between measured and reconstructed regional mean red, green and blue intensities. Symbols identify models, and horizontal segments connect the lowest and highest model estimates in each anatomical region. Slight vertical offsets separate overlapping symbols. (e) UV object-count and area agreement and local detection. Count MAE measures the absolute difference in object count; count ICC measures count agreement. Area MAE measures the error in occupied area fraction, in percentage points (pp); area ICC measures area-fraction agreement. Local AUROC and PR-AUC assess the detection of signal presence in local windows. (f) Mask Dice, object precision, recall and F1, matched-centroid error, and the number of captures with matched objects, using a 5-pixel centroid tolerance. k denotes thousands of captures. (g) Relative change in regional L1 after shifting the predicted UV image by the indicated displacement, without added blur. A dash marks an unavailable estimate for that panel.'''
-    caption_cn='''图3　从图像、解剖区域和UV信号三个尺度评价RGB重建。五种模型分别为单目标U-Net（Single U-Net）、多目标U-Net（Multi U-Net）、U-Net++、Swin Transformer（Swin）和潜扩散模型（LDM）。（a）同一条独立评估记录的实测UV与五种模型输出的鼻部局部对比，采用完全相同的裁剪坐标和强度显示范围。（b）UV、PLH和PLV各区域的平均绝对重建误差L1，误差线表示记录间的一个标准差。P为卟啉信号区，D为UV斑区，O为其余有效皮肤，F为全脸有效区域。（c）在配对记录上比较全脸L1。UV和PL柱表示各自重建误差，灰色区段表示UV相对于对应偏振模态的配对误差差值。（d）实测与重建图像中各解剖区域平均红、绿、蓝通道强度的绝对一致性ICC(A,1)。不同符号表示模型，水平线连接该区域模型估计的最小值与最大值；轻微纵向错位用于分开重叠符号。（e）UV对象数量、面积及局部存在检测。Count MAE表示对象计数的平均绝对误差，Count ICC表示计数一致性；Area MAE表示面积占比误差，单位为百分点，Area ICC表示面积占比一致性；Local AUROC与PR-AUC评价局部窗口内是否存在目标信号。（f）在质心距离容限为5像素时，评价掩膜Dice、对象匹配精确率、召回率、F1、匹配对象中心误差和存在匹配对象的记录数，k表示千条记录。（g）在不额外模糊的条件下，移动预测UV图像后各区域L1的相对变化。横线表示该子图缺少已验收估计值。'''
+    caption_en='''Figure 3. Reconstruction from RGB across image, anatomical and UV-signal measurements. The five models are single-target U-Net (Single U-Net), multi-target U-Net (Multi U-Net), U-Net++, Swin Transformer (Swin) and latent diffusion model (LDM). (a) Rows show UV, PLH and PLV from one held-out capture. The ground truth column shows the measured target and the next five columns show reconstructions from its paired RGB image. All panels use the same nasal crop and display range. (b) Regional mean absolute reconstruction error (L1) for UV, parallel-polarized light (PLH) and cross-polarized light (PLV). Error bars show one between-capture standard deviation. P, porphyrin-signal region; D, UV-spot region; O, other valid skin; F, full valid face. (c) Full-face L1 on matched captures. UV and PL bars show the two reconstruction errors; the grey segment shows the paired reduction from UV to the polarized target. (d) Absolute-agreement ICC(A,1) between measured and reconstructed regional mean red, green and blue intensities. Symbols identify models, and horizontal segments connect the lowest and highest model estimates in each anatomical region. Slight vertical offsets separate overlapping symbols. (e) UV object-count and area agreement and local detection. Count MAE measures the absolute difference in object count; count ICC measures count agreement. Area MAE measures the error in occupied area fraction, in percentage points (pp); area ICC measures area-fraction agreement. Local AUROC and PR-AUC assess the detection of signal presence in local windows. (f) Mask Dice, object precision, recall and F1, matched-centroid error, and the number of captures with matched objects, using a 5-pixel centroid tolerance. k denotes thousands of captures. (g) Relative change in regional L1 after shifting the predicted UV image by the indicated displacement, without added blur. A dash marks an unavailable estimate for that panel.'''
+    caption_cn='''图3　从图像、解剖区域和UV信号三个尺度评价RGB重建。五种模型分别为单目标U-Net（Single U-Net）、多目标U-Net（Multi U-Net）、U-Net++、Swin Transformer（Swin）和潜扩散模型（LDM）。（a）三行依次为同一测试样本的 UV、PLH 和 PLV。Ground truth 列为各模态的实测图像，右侧五列为五个模型从配对 RGB 图像得到的重建。所有图像均使用相同的鼻部裁剪坐标和显示范围。（b）UV、PLH和PLV各区域的平均绝对重建误差L1，误差线表示记录间的一个标准差。P为卟啉信号区，D为UV斑区，O为其余有效皮肤，F为全脸有效区域。（c）在配对记录上比较全脸L1。UV和PL柱表示各自重建误差，灰色区段表示UV相对于对应偏振模态的配对误差差值。（d）实测与重建图像中各解剖区域平均红、绿、蓝通道强度的绝对一致性ICC(A,1)。不同符号表示模型，水平线连接该区域模型估计的最小值与最大值；轻微纵向错位用于分开重叠符号。（e）UV对象数量、面积及局部存在检测。Count MAE表示对象计数的平均绝对误差，Count ICC表示计数一致性；Area MAE表示面积占比误差，单位为百分点，Area ICC表示面积占比一致性；Local AUROC与PR-AUC评价局部窗口内是否存在目标信号。（f）在质心距离容限为5像素时，评价掩膜Dice、对象匹配精确率、召回率、F1、匹配对象中心误差和存在匹配对象的记录数，k表示千条记录。（g）在不额外模糊的条件下，移动预测UV图像后各区域L1的相对变化。横线表示该子图缺少已验收估计值。'''
     (OUT/'Figure3_caption_EN.txt').write_text(caption_en,encoding='utf8')
     (OUT/'Figure3_caption_CN.txt').write_text(caption_cn,encoding='utf8')
     return {name: OUT/name for name in ['Figure3.pdf','Figure3.svg','Figure3.png','Figure3_preview.png']}

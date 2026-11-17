@@ -173,6 +173,14 @@
       "access": "public",
       "sha256": "902ae049387f1dbf3ed3680e0378b29fdf586b674a0cb38391ed1f12ecfc72ff"
     },
+    "figure3/polarized_roi.npz": {
+      "access": "group",
+      "sha256": "782170c1e1cca0de17c0267374a82b20e0d88a89cfa6802b2b9e9229d09afaae"
+    },
+    "figure3/polarized_roi_provenance.json": {
+      "access": "group",
+      "sha256": "4fda8c514b53bfb7f9d0a8120ce52e1a14901c77fede45d2fef3509d3092ac99"
+    },
     "figure3/reconstruction.csv": {
       "access": "public",
       "sha256": "498b463cf71e8eb7238510864ec5cd66e8264ef293e8a3412f1650eae885e370"
