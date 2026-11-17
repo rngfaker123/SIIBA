@@ -50,10 +50,9 @@ def build(output_dir):
 
     # Figure labels.
     changes = {
-        '115,382 groups': '115,382 records',
-        'Excluded: 5,893 groups': 'Excluded: 5,893 records',
-        '21,415 groups': '21,415 records',
-        'Test groups by skin tone': 'Skin-tone strata (ITA)',
+        '115,382 groups': '115,382 individuals',
+        'Excluded: 5,893 groups': 'Excluded: 5,893 individuals',
+        'Test groups by skin tone': 'Skin tone of individuals in the test set',
         'Four-mode facial imaging': 'Four-mode facial imaging',
     }
     for key, panel in panels.items():
@@ -87,9 +86,12 @@ def build(output_dir):
         size = float(el.get('font-size', '13'))
         if size in (16, 15.3):
             el.set('font-size', '20')
-        if el.text == '21,415 records':
+        if el.text == '21,415 groups':
             el.set('font-size', '17.5')
-            el.set('y', '238')
+            el.set('y', '236')
+            el.text = '21,415'
+            unit = ET.SubElement(el, NS+'tspan', {'x': el.get('x'), 'dy': '19'})
+            unit.text = 'individuals'
 
     # Region order.
     domains = panels['panel-d']
@@ -134,17 +136,17 @@ def build(output_dir):
 
     caption_en = '''
     Figure 1. Paired skin imaging, analysis domains and experimental design.
-    (a) Four-mode facial imaging and cohort selection. Of 115,382 paired capture records, 109,489 records (437,956 images) remained after technical and light-leakage exclusions. The retained records were split into training (76,642), validation (10,948) and held-out test (21,899) sets. Among test records, 21,415 received an ITA classification and 19,645 met the pixel-support requirements for ITA-stratified MI. Each record comprises four images from one acquisition. The acquisition device is illustrated schematically.
-    (b) Paired white-light RGB, ultraviolet (UV), parallel-polarized (PLH) and cross-polarized (PLV) images from one validation record. Eye regions are concealed in all photographic examples.
-    (c) The six skin-tone strata defined by individual typology angle (ITA), with test-record counts and the corresponding thresholds. Equal ring segments denote categories. The portrait skin colours are illustrative.
+    (a) Four-mode facial imaging and cohort selection. Of 115,382 individuals, 109,489 remained after technical and light-leakage exclusions, contributing 437,956 images. The training, validation and held-out test sets comprised 76,642, 10,948 and 21,899 individuals, respectively. In the test set, 21,415 individuals received an ITA classification and 19,645 met the pixel-support requirements for ITA-stratified MI. Counts are based on anonymized acquisition identifiers, each linking four images. These identifiers do not link repeat visits by the same person. The acquisition device is illustrated schematically.
+    (b) Paired white-light RGB, ultraviolet (UV), parallel-polarized (PLH) and cross-polarized (PLV) images from one individual in the validation set. Eye regions are concealed in all photographic examples.
+    (c) The six skin-tone strata defined by individual typology angle (ITA), with the number of test-set individuals in each stratum and the corresponding thresholds. Equal ring segments denote categories. The portrait skin colours are illustrative.
     (d) Two complementary regional definitions. Measured UV defines porphyrin-signal regions (P), UV spots (D) and other valid skin (O), which partition the full valid facial domain (F). The same coordinates are used for all imaging modalities. Anatomical evaluation subdivides F into five mutually exclusive regions that together cover F: forehead, image-left cheek, image-right cheek, nose and chin. Each expanded anatomical region contains its original sampling region. The diagrams illustrate these definitions.
     (e) Four linked experiments. Regional MI between RGB and each target modality quantifies shared information and is evaluated across sampling settings and image resolutions. Repeating MI within the six ITA strata assesses skin-tone dependence. Five model families reconstruct UV, PLH and PLV from RGB; comparisons with paired measurements assess image fidelity and regional intensity agreement, with UV-specific analyses of object counts, area and spatial matching. UV uncertainty evaluation examines the relationship between predicted uncertainty and error, uncertainty-based selection, and the coverage and width of calibrated intervals. The uncertainty ranking and count interval are schematic.
     '''
     caption_cn = '''
     图1 配对皮肤成像、分析区域与实验设计。
-    （a）四种成像模式的采集与队列筛选。从115,382条配对采集记录中排除技术问题和漏光记录后，保留109,489条记录，共437,956幅图像。训练集、验证集和测试集分别包含76,642、10,948和21,899条记录。测试集中21,415条记录可划分ITA肤色层级，19,645条进一步满足ITA分层互信息分析的区域像素要求。每条记录包含同次采集的四幅图像，设备为采集示意。
-    （b）同一条验证记录的白光RGB、紫外UV、平行偏振PLH及交叉偏振PLV图像。所有真实人脸示例均遮挡眼部。
-    （c）按个体类型角ITA划分的六个肤色层级，以及各层测试记录数和划分阈值。圆环等长分段表示类别，小人的肤色仅作示意。
+    （a）四种成像模式的采集与队列筛选。初始纳入115,382人，排除技术问题和漏光后保留109,489人，共437,956幅图像。训练集、验证集和测试集分别包含76,642、10,948和21,899人。测试集中21,415人获得ITA肤色分层，19,645人满足ITA分层互信息分析的区域像素要求。人数按匿名采集编号统计，每个编号对应同次采集的四幅图像。这些编号无法关联同一人的多次采集。图中设备为示意图。
+    （b）同一名验证集个体的白光RGB、紫外UV、平行偏振PLH及交叉偏振PLV图像。所有真实人脸示例均遮挡眼部。
+    （c）按个体类型角ITA划分的六个肤色层级，以及测试集中各层的人数和对应阈值。圆环等长分段表示类别，小人的肤色仅作示意。
     （d）两套互补的区域划分。实测UV定义卟啉信号区P、UV斑区D和其余有效皮肤O，三者构成全有效面部F；各模态使用相同位置。解剖分区将F划为互不重叠且合起来覆盖F的额头、图像左颊、图像右颊、鼻部和下巴，每个扩展区域均包含原来的取样区域。示意图展示两套定义。
     （e）四项相互关联的实验。区域互信息量化RGB与各目标模态共享的信息，并检验其对抽样设置和分辨率的敏感性。在六个ITA层内重复分析以考察肤色影响。五类模型由RGB重建UV、PLH和PLV，与实测图比较图像保真度和区域平均强度一致性，UV另评价对象数量、面积和空间匹配。不确定性实验考察预测不确定性与误差的关系、按不确定性筛选样本，以及校准区间的覆盖率和宽度。排序和计数区间均为示意。
     '''
