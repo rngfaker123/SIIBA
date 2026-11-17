@@ -121,7 +121,7 @@ def build(output_dir):
     assert np.isfinite(log_p) and log_p <= 0
     coefficient, exponent = paired['p_scientific'].split('e')
     assert np.isclose(np.log10(float(coefficient)) + int(exponent), log_p)
-    p_label = rf'$p = {float(coefficient):.3g}\times 10^{{{int(exponent)}}}$'
+    assert log_p < -3, 'The paired test must support the displayed threshold'
     plt.rcParams.update({
         'font.family': FONT, 'font.size': 8, 'text.color': '#171717',
         'axes.labelcolor': '#171717', 'axes.edgecolor': '#333333',
@@ -224,9 +224,7 @@ def build(output_dir):
     # Anchor the comparison to the full-face bar for each tested modality.
     left = centres[TARGETS.index('uv'), DOMAINS.index('F')]
     right = centres[TARGETS.index('plh'), DOMAINS.index('F')]
-    ax.plot([left, left, right, right], [4.05, 4.17, 4.17, 4.05],
-            color='#333333', lw=.7)
-    ax.text((left + right) / 2, 4.22, p_label, ha='center', va='bottom', fontsize=8.5)
+    ax.text((left + right) / 2, 4.08, r'$p < 0.001$', ha='center', va='bottom', fontsize=11)
 
     heading('b', 'Mutual-information stability', 6.43)
     region_legend(6.34)
@@ -293,7 +291,9 @@ def build(output_dir):
                     mfc=FACTOR_COLORS[factor_index], mec='#344A60', mew=.5, ls=''))
         text(tile_left - .04, 2.73 + tile_side / 2 - row_index * (tile_side + tile_gap),
              modality, ha='right', va='center', fontsize=8)
-    text(1.08, 3.28, 'Downsampling', ha='center', va='center', fontsize=8)
+    text(1.08, 3.28, 'Spatial downsampling', ha='center', va='center', fontsize=8)
+    text(1.08, 2.12, 'Image resolution decreases\nfrom left to right.',
+         ha='center', va='center', fontsize=8, linespacing=1.05)
     for column, target in enumerate(TARGETS):
         ax = axes([2.15, 4.25, 6.35][column], 2.35, 1.95, .79)
         ax.spines['left'].set_visible(False)
@@ -385,7 +385,7 @@ def build(output_dir):
         'Figure 2. Regional mutual information between RGB and UV, PLH and PLV. '
         '(a) The illustration defines the full valid facial domain (F), porphyrin-signal region (P), '
         'UV-spot region (D) and other valid skin (O). Bars show mutual information (MI) estimated from pixels pooled across acquisitions. '
-        f'The bracket marks the two-sided exact paired sign test for full-face MI. Each of the {paired["n_acquisitions"]:,} acquisitions '
+        f'The p value compares RGB–UV and RGB–PLH MI across the full face using a two-sided exact paired sign test. Each of the {paired["n_acquisitions"]:,} acquisitions '
         'contributed one RGB–UV and one RGB–PLH MI estimate, each averaged over three draws of 1,000 matched full-face pixels. '
         '(b) Stability of MI estimates as the percentage of eligible test records and the number of nearest neighbours '
         'in the MI estimator vary. (c) Paired RGB and UV crops show the same skin patch at native resolution and '
@@ -396,7 +396,7 @@ def build(output_dir):
     caption_cn = (
         '图2 RGB与UV、PLH和PLV的区域互信息。'
         '（a）示意全脸有效区域（F）、卟啉区（P）、UV斑区（D）及其余有效皮肤（O）。柱高为合并各次采集的像素后估计的互信息。'
-        f'横括线标注全脸互信息的双侧精确配对符号检验。在{paired["n_acquisitions"]:,}次采集中，每次分别计算RGB–UV和RGB–PLH的互信息，'
+        f'p 值来自比较RGB–UV与RGB–PLH全脸互信息的双侧精确配对符号检验。在{paired["n_acquisitions"]:,}次采集中，每次分别计算RGB–UV和RGB–PLH的互信息，'
         '各取三轮抽样的均值，每轮使用全脸同一位置的1,000个配对像素。'
         '（b）改变符合条件的测试记录抽取比例及互信息估计中的近邻数，检验估计的稳定性。'
         '（c）配对RGB与UV局部图展示同一皮肤区域在原始分辨率以及宽、高分别下采样至原始的1/2、1/4和1/8后的细节。圆点深浅表示对应的分辨率。'
