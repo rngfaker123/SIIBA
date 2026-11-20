@@ -50,6 +50,7 @@ python figures/render_figures.py --check-public
 
 The training guide includes a synthetic forward pass for each architecture and a training update. The plotting guide gives the command, dependencies and inputs for each of the four main figures. [Training guide](research/training/README.md) · [Reproduce Figures 1–4](figures/README.md)
 
-## 🔑 Data and model access
+## Usage guide
 
-This repository includes the study code, model configurations, aggregate plotting data and synthetic checks. Source clinical images, participant-level manifests and model checkpoints are held separately. Full-cohort replay requires the original study manifests, masks, protocols and licensed detector inputs. Rendering a panel with a clinical example also requires the corresponding image from the study collection. [Training input requirements](research/training/README.md) · [Figure input manifest](figures/input_manifest.json)
+- **Model training:** See the [training guide](research/training/README.md) for the expected input format.
+- **Figure generation:** See the [figure input manifest](figures/input_manifest.json) for the inputs used by each figure.
